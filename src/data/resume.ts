@@ -10,9 +10,9 @@ export const profile = {
   // relative to /public
   avatar: "images/avatar.jpg",
   summary:
-    "Full-stack .NET Software Engineer with 4+ years of experience building and maintaining scalable web applications across the .NET, Angular, and Knockout.js stack. Currently a Senior Software Engineer at Impetus Technologies, working full-stack on a US payroll platform serving 20,000+ employers, including leading the end-to-end integration of Zayzoon (on-demand pay). Strong background in SQL, DevOps (Azure Pipelines, Git), and Agile delivery, with a track record of independently owning features from requirements through deployment.",
+    "Full-stack .NET Software Engineer with 4+ years of experience building and maintaining scalable web applications across the .NET, Angular, and Knockout.js stack. Senior Software Engineer at Impetus Technologies, now working full-stack on the PCMI Corporation project (Angular 21, .NET Core, Azure AI Services), after leading the end-to-end integration of Zayzoon (on-demand pay) into a US payroll platform serving 20,000+ employers. Strong background in SQL, DevOps (Azure Pipelines, Git), and Agile delivery, with a track record of independently owning features from requirements through deployment.",
   summaryShort:
-    "Full-stack .NET engineer. 4+ years. Shipped on-demand pay to 20,000+ employers. Prefers shipping features over writing about them — but here we are.",
+    "Full-stack .NET engineer. 4+ years. Shipped on-demand pay to 20,000+ employers, now building PCMI Corporation's platform with Angular 21 + Azure AI. Prefers shipping features over writing about them — but here we are.",
 };
 
 // Flavor comments shown on hover over each field in the About tab's
@@ -45,6 +45,7 @@ export interface Job {
   branch: string; // git-branch style label
   projects: {
     name: string;
+    period?: string;
     bullets: Bullet[];
   }[];
   responsibilities?: Bullet[];
@@ -59,7 +60,18 @@ export const jobs: Job[] = [
     branch: "main",
     projects: [
       {
+        name: "PCMI Corporation",
+        period: "Jul 2026 — Present",
+        bullets: [
+          "Working as a full-stack developer on the PCMI Corporation project, building features across both front-end and back-end layers.",
+          "Building new front-end modules with Angular 21 and back-end services with .NET Core.",
+          "Integrating Azure AI Services into the platform to support AI-driven functionality.",
+          "Designing and consuming APIs backed by SQL Server for core application workflows.",
+        ],
+      },
+      {
         name: "IRIS — US Payroll Application",
+        period: "Jan 2025 — Jun 2026",
         bullets: [
           "Worked as a full-stack developer across the entire application lifecycle — front-end, back-end, and API layers — for a US-based payroll platform.",
           "Developed and maintained functionality using VB.NET and C# across legacy and new modules of the platform.",
@@ -70,7 +82,16 @@ export const jobs: Job[] = [
         ],
       },
     ],
-    tech: ["VB.NET", "C#", "Web API", "Knockout.js", "Angular", "SQL"],
+    tech: [
+      "Angular 21",
+      ".NET Core",
+      "Azure AI Services",
+      "VB.NET",
+      "C#",
+      "Web API",
+      "Knockout.js",
+      "SQL",
+    ],
   },
   {
     company: "Quinnox Consultancy Pvt Ltd",
@@ -116,7 +137,8 @@ export const skills = {
     "Windows Forms",
     "LINQ",
   ],
-  "frontend.ts": ["JavaScript", "HTML5", "CSS3", "Angular", "Knockout.js"],
+  "frontend.ts": ["JavaScript", "HTML5", "CSS3", "Angular 21", "Knockout.js"],
+  "ai.ts": ["Azure AI Services"],
   "devops.ts": ["Azure DevOps", "Git"],
   "languages.ts": ["C#.NET / LINQ", "VB.NET", "Java"],
   "tools.ts": ["Visual Studio (2017/2019/2022)", "VS Code", "Microsoft SQL Server", "Microsoft Azure"],
@@ -152,17 +174,17 @@ export const architectureLayers: ArchLayer[] = [
   {
     id: "frontend",
     label: "Front End",
-    sublabel: "Angular · Knockout.js · HTML5/CSS3",
+    sublabel: "Angular 21 · Knockout.js · HTML5/CSS3",
     detail:
-      "Owns the screens payroll admins and employees actually touch — from Knockout.js-driven views on the legacy IRIS platform to Angular modules on CRE. Built and shipped interactive UI for on-demand pay requests, garbage/recycling/dumpster service workflows, and landfill reporting.",
-    tech: ["Angular", "Knockout.js", "HTML5", "CSS3", "JavaScript"],
+      "Owns the screens people actually touch — from Knockout.js-driven views on the legacy IRIS platform to Angular modules on CRE, and now Angular 21 on the PCMI Corporation project. Built and shipped interactive UI for on-demand pay requests, garbage/recycling/dumpster service workflows, landfill reporting, and PCMI's newer full-stack features.",
+    tech: ["Angular 21", "Knockout.js", "HTML5", "CSS3", "JavaScript"],
   },
   {
     id: "api",
     label: "API Layer",
     sublabel: "C# Web API",
     detail:
-      "Designed and consumed C# Web APIs that move payroll data between IRIS and downstream services — including the Zayzoon on-demand-pay integration, wired so 20,000+ employers and several lakh employees can draw earned wages before payday without breaking the core payroll run.",
+      "Designed and consumed C# Web APIs that move data between front-end and back-end services — including the Zayzoon on-demand-pay integration on IRIS, wired so 20,000+ employers and several lakh employees could draw earned wages before payday, and the API layer now underpinning the PCMI Corporation project.",
     tech: ["C# Web API", ".NET Core", "REST"],
   },
   {
@@ -170,8 +192,16 @@ export const architectureLayers: ArchLayer[] = [
     label: "Application / Backend",
     sublabel: "VB.NET · C# · .NET Core · MVC",
     detail:
-      "Maintains and extends business logic across legacy VB.NET modules and modern C#/.NET Core services. On CRE, this meant MVC-architecture services for waste management operations; on IRIS, payroll processing logic spanning years-old code and new feature work side by side.",
+      "Maintains and extends business logic across legacy VB.NET modules and modern C#/.NET Core services. On CRE, this meant MVC-architecture services for waste management operations; on IRIS, payroll processing logic spanning years-old code and new feature work side by side. Now building out .NET Core services for the PCMI Corporation project.",
     tech: ["VB.NET", "C#", ".NET Core 8", ".NET MVC 8", "Entity Framework", "ADO.NET", "LINQ"],
+  },
+  {
+    id: "ai",
+    label: "AI Services",
+    sublabel: "Azure AI Services",
+    detail:
+      "The newest layer — integrating Azure AI Services into the PCMI Corporation build, adding intelligent capabilities alongside the traditional API and data layers.",
+    tech: ["Azure AI Services"],
   },
   {
     id: "data",

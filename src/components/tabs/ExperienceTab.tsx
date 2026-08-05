@@ -78,8 +78,13 @@ export default function ExperienceTab() {
                       <div className="mt-3 space-y-4 pl-1 sm:pl-2">
                         {job.projects.map((proj) => (
                           <div key={proj.name}>
-                            <div className="font-mono text-xs uppercase tracking-wide text-[#39ff8e] mb-2">
+                            <div className="flex items-baseline gap-2 flex-wrap font-mono text-xs uppercase tracking-wide text-[#39ff8e] mb-2">
                               {proj.name}
+                              {proj.period && (
+                                <span className="text-[10px] normal-case tracking-normal text-[#556058]">
+                                  {proj.period}
+                                </span>
+                              )}
                             </div>
                             <ul className="space-y-2.5">
                               {proj.bullets.map((b) => (
