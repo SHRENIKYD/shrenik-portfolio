@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Inter } from "next/font/google";
+import InteractiveBackground from "@/components/InteractiveBackground";
 import "./globals.css";
 
 const jetbrainsMono = JetBrains_Mono({
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${jetbrainsMono.variable} ${inter.variable} h-full dark`}
     >
       <body className="min-h-full flex flex-col bg-[#0a0e0c] text-[#c9d1d9] antialiased selection:bg-[#39ff8833] selection:text-[#7CFFB2]">
+        <InteractiveBackground />
         {children}
       </body>
     </html>
