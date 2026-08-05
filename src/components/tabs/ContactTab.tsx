@@ -115,6 +115,10 @@ export default function ContactTab() {
           ./download_resume.pdf
         </a>
       </div>
+
+      {/* fills any leftover row width on wide viewports so raw
+          background is never exposed beside the content column */}
+      <div className="flex-1 bg-[#0a0e0c]" />
     </div>
   );
 }

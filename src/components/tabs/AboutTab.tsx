@@ -277,8 +277,8 @@ export default function AboutTab() {
       </div>
 
       {/* absorbs leftover width on wide viewports so the rail + minimap
-          hug the right edge instead of leaving dead space past them */}
-      <div className="flex-1" />
+          hug the right edge instead of leaving raw background exposed */}
+      <div className="flex-1 bg-[#0a0e0c]" />
 
       <aside className="hidden lg:flex lg:sticky lg:top-0 lg:self-start w-64 shrink-0 flex-col gap-4 border-l border-[#1c2621] px-4 py-8">
         <div>
