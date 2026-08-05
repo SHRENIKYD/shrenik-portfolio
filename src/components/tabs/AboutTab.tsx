@@ -142,9 +142,9 @@ function RestOfAbout() {
         {impactStats.map((s) => (
           <div
             key={s.label}
-            className="rounded-lg border border-[#1c2621] bg-[#0d1310] px-3 py-4 text-center hover:border-[#39ff8e]/40 transition-colors"
+            className="min-w-0 rounded-lg border border-[#1c2621] bg-[#0d1310] px-2 sm:px-3 py-4 text-center hover:border-[#39ff8e]/40 transition-colors"
           >
-            <div className="font-mono text-xl sm:text-2xl font-bold text-[#39ff8e] text-glow">
+            <div className="font-mono text-sm sm:text-lg md:text-2xl font-bold text-[#39ff8e] text-glow truncate">
               <Counter value={s.value} suffix={s.suffix} />
             </div>
             <div className="mt-1 text-[11px] text-[#8b978f] leading-tight">
