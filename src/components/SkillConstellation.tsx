@@ -1,16 +1,17 @@
 "use client";
 
-// Fixed (not random) node layout — keeps server/client markup identical
-// and avoids hydration mismatches. Purely decorative background.
+// Fixed (not random) node layout — keeps server/client markup identical.
+// Lives inside its own bordered card in the About-tab rail, so it can run
+// much brighter than a full-page background without fighting page text.
 const NODES = [
-  { label: "C#", x: 8, y: 12, delay: 0 },
-  { label: ".NET", x: 22, y: 62, delay: 0.6 },
-  { label: "Angular", x: 88, y: 18, delay: 1.2 },
-  { label: "SQL", x: 68, y: 78, delay: 1.8 },
-  { label: "Azure", x: 40, y: 30, delay: 2.4 },
-  { label: "VB.NET", x: 14, y: 85, delay: 3.0 },
-  { label: "Knockout.js", x: 78, y: 55, delay: 3.6 },
-  { label: "Git", x: 52, y: 90, delay: 4.2 },
+  { label: "C#", x: 12, y: 15, delay: 0 },
+  { label: ".NET Core", x: 30, y: 55, delay: 0.6 },
+  { label: "Angular 21", x: 82, y: 20, delay: 1.2 },
+  { label: "SQL", x: 65, y: 80, delay: 1.8 },
+  { label: "Azure AI", x: 45, y: 35, delay: 2.4 },
+  { label: "VB.NET", x: 18, y: 85, delay: 3.0 },
+  { label: "Knockout.js", x: 78, y: 58, delay: 3.6 },
+  { label: "Git", x: 50, y: 92, delay: 4.2 },
 ];
 
 const EDGES: [number, number][] = [
@@ -26,14 +27,11 @@ const EDGES: [number, number][] = [
 
 export default function SkillConstellation() {
   return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute inset-0 overflow-hidden opacity-[0.16]"
-    >
+    <div aria-hidden className="relative h-48 w-full overflow-hidden">
       <svg
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
-        className="h-full w-full"
+        className="absolute inset-0 h-full w-full opacity-70"
       >
         {EDGES.map(([a, b], i) => (
           <line
@@ -43,17 +41,21 @@ export default function SkillConstellation() {
             x2={NODES[b].x}
             y2={NODES[b].y}
             stroke="#39ff8e"
-            strokeWidth={0.15}
+            strokeWidth={0.3}
           />
+        ))}
+        {NODES.map((n, i) => (
+          <circle key={i} cx={n.x} cy={n.y} r={0.9} fill="#39ff8e" />
         ))}
       </svg>
       {NODES.map((n) => (
         <span
           key={n.label}
-          className="absolute font-mono text-[10px] text-[#39ff8e]"
+          className="absolute font-mono text-[10px] text-[#39ff8e] whitespace-nowrap"
           style={{
             left: `${n.x}%`,
             top: `${n.y}%`,
+            transform: "translate(-50%, 6px)",
             animation: `drift 9s ease-in-out ${n.delay}s infinite`,
           }}
         >
@@ -62,8 +64,8 @@ export default function SkillConstellation() {
       ))}
       <style>{`
         @keyframes drift {
-          0%, 100% { transform: translate(0, 0); }
-          50% { transform: translate(4px, -6px); }
+          0%, 100% { transform: translate(-50%, 6px); }
+          50% { transform: translate(calc(-50% + 4px), 0px); }
         }
       `}</style>
     </div>

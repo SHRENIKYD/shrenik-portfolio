@@ -1,21 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { architectureLayers } from "@/data/resume";
 import Gutter from "@/components/Gutter";
 import { Play, Plus } from "lucide-react";
 
+const HOLD_MS = 2000;
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export default function ArchitectureTab() {
   const [openLayer, setOpenLayer] = useState<string | null>(architectureLayers[0].id);
   const [pulseKey, setPulseKey] = useState(0);
   const [running, setRunning] = useState(false);
+  const cancelledRef = useRef(false);
 
-  const runRequest = () => {
+  useEffect(() => {
+    return () => {
+      cancelledRef.current = true;
+    };
+  }, []);
+
+  const runRequest = async () => {
     if (running) return;
     setRunning(true);
     setPulseKey((k) => k + 1);
-    setTimeout(() => setRunning(false), architectureLayers.length * 550 + 400);
+
+    for (const layer of architectureLayers) {
+      if (cancelledRef.current) return;
+      setOpenLayer(layer.id);
+      await wait(HOLD_MS);
+      if (cancelledRef.current) return;
+    }
+
+    setOpenLayer(architectureLayers[0].id);
+    setRunning(false);
   };
 
   return (
@@ -24,7 +46,7 @@ export default function ArchitectureTab() {
       <div className="flex-1 min-w-0 px-4 sm:px-8 py-8 max-w-3xl">
         <div className="flex items-center justify-between flex-wrap gap-3 mb-2">
           <div className="font-mono text-sm text-[#6b7a72]">
-            <span className="text-[#556058]">01</span> // how a payroll request actually
+            <span className="text-[#556058]">01</span> // how a request actually
             flows through what I&apos;ve built
           </div>
           <button
@@ -39,8 +61,8 @@ export default function ArchitectureTab() {
 
         <p className="text-sm text-[#8b978f] mb-8 max-w-xl leading-relaxed">
           Click any layer to expand it. Hit &ldquo;trigger request&rdquo; to watch a
-          request travel top-to-bottom the way an on-demand-pay call actually moves
-          through IRIS.
+          request travel top-to-bottom through the stack — each layer will open
+          itself, hold for a couple seconds, then hand off to the next.
         </p>
 
         <div className="relative">
@@ -65,9 +87,9 @@ export default function ArchitectureTab() {
                         initial={{ opacity: 0, scale: 0.4 }}
                         animate={{ opacity: [0, 1, 1, 0], scale: [0.4, 1, 1, 0.4] }}
                         transition={{
-                          delay: i * 0.55,
-                          duration: 0.5,
-                          times: [0, 0.2, 0.7, 1],
+                          delay: (i * HOLD_MS) / 1000,
+                          duration: HOLD_MS / 1000,
+                          times: [0, 0.15, 0.75, 1],
                         }}
                       />
                     )}

@@ -15,6 +15,9 @@ import Counter from "@/components/Counter";
 import CareerSparkline from "@/components/CareerSparkline";
 import SkillConstellation from "@/components/SkillConstellation";
 import AvatarReveal from "@/components/AvatarReveal";
+import TechOrbit from "@/components/TechOrbit";
+import TerminalStatusPanel from "@/components/TerminalStatusPanel";
+import CodeMinimap from "@/components/CodeMinimap";
 import { useMultiLineTypewriter } from "@/components/useMultiLineTypewriter";
 import { GraduationCap, Sparkles, Languages, MapPin, Terminal } from "lucide-react";
 
@@ -236,8 +239,7 @@ export default function AboutTab() {
   const [compiled, setCompiled] = useState(false);
 
   return (
-    <div className="relative flex">
-      <SkillConstellation />
+    <div className="flex">
       <Gutter />
       <div className="relative flex-1 min-w-0 px-4 sm:px-8 py-8 max-w-3xl">
         <motion.div
@@ -272,6 +274,26 @@ export default function AboutTab() {
 
         {compiled && <RestOfAbout />}
       </div>
+
+      <aside className="hidden lg:flex w-64 shrink-0 flex-col gap-4 border-l border-[#1c2621] px-4 py-8">
+        <div>
+          <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-[#556058]">
+            stack.orbit
+          </div>
+          <TechOrbit />
+        </div>
+
+        <div className="rounded-lg border border-[#1c2621] bg-[#0d1310] p-3">
+          <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-[#556058]">
+            stack.map
+          </div>
+          <SkillConstellation />
+        </div>
+
+        <TerminalStatusPanel />
+      </aside>
+
+      <CodeMinimap />
     </div>
   );
 }
