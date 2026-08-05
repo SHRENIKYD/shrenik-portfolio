@@ -3,17 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useMultiLineTypewriter } from "@/components/useMultiLineTypewriter";
 
+// Kept to exactly 4 facts, on request: what I do, where I work,
+// education, and total experience.
 const STATUS_LINES: { cmd: string; output: string }[] = [
-  { cmd: "whoami", output: "shrenik — Senior Software Engineer" },
+  { cmd: "whoami", output: "Senior Software Engineer" },
   { cmd: "current --project", output: "PCMI Corporation @ Impetus Technologies" },
-  { cmd: "cat mood.txt", output: "shipping > talking about shipping" },
-  { cmd: "uptime --career", output: "4+ years, 2 companies, 0 gaps" },
-  { cmd: "git log --oneline -1", output: "led Zayzoon on-demand-pay integration" },
-  { cmd: "stack --frontend", output: "Angular 21, Knockout.js" },
-  { cmd: "stack --backend", output: ".NET Core, VB.NET, C#" },
   { cmd: "cat education.txt", output: "MCA · Nitte Meenakshi · CGPA 8.43" },
-  { cmd: "ping recruiter", output: "usually responds within a day" },
-  { cmd: "echo $LOCATION", output: "Bengaluru, IST" },
+  { cmd: "uptime --career", output: "4 years, 10 months" },
 ];
 
 function IstClock() {
@@ -39,8 +35,7 @@ function IstClock() {
   return <span>{time} IST</span>;
 }
 
-function CycleLine({ cycleKey, onDone }: { cycleKey: number; onDone: (pair: { cmd: string; output: string }) => void }) {
-  const pair = STATUS_LINES[cycleKey % STATUS_LINES.length];
+function CycleLine({ pair, onDone }: { pair: { cmd: string; output: string }; onDone: () => void }) {
   const { rendered, activeIndex, done } = useMultiLineTypewriter(
     [`$ ${pair.cmd}`, pair.output],
     18,
@@ -49,7 +44,7 @@ function CycleLine({ cycleKey, onDone }: { cycleKey: number; onDone: (pair: { cm
 
   useEffect(() => {
     if (!done) return;
-    const t = setTimeout(() => onDone(pair), 1400);
+    const t = setTimeout(onDone, 1800);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [done]);
@@ -68,19 +63,21 @@ function CycleLine({ cycleKey, onDone }: { cycleKey: number; onDone: (pair: { cm
   );
 }
 
-const MAX_HISTORY = 24;
-
 export default function TerminalStatusPanel() {
-  const [cycle, setCycle] = useState(0);
-  const [history, setHistory] = useState<{ cmd: string; output: string }[]>([]);
+  const [printed, setPrinted] = useState<{ cmd: string; output: string }[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const finished = printed.length >= STATUS_LINES.length;
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
-  }, [history.length]);
+  }, [printed.length]);
 
   return (
-    <div className="flex flex-1 min-h-0 flex-col rounded-lg border border-[#1c2621] bg-[#0d1310] overflow-hidden">
+    <div
+      className={`flex h-56 flex-col rounded-lg border border-[#1c2621] bg-[#0d1310] overflow-hidden transition-shadow ${
+        finished ? "glow-pulse" : ""
+      }`}
+    >
       <div className="flex items-center justify-between border-b border-[#1c2621] px-3 py-2 shrink-0">
         <div className="flex gap-1.5">
           <span className="h-2 w-2 rounded-full bg-[#ff5f57]" />
@@ -96,20 +93,22 @@ export default function TerminalStatusPanel() {
         ref={scrollRef}
         className="flex-1 min-h-0 overflow-y-auto px-3 py-3 font-mono text-[11px] leading-relaxed space-y-2"
       >
-        {history.map((h, i) => (
-          <div key={i} className="opacity-60">
-            <div className="text-[#556058]">$ {h.cmd}</div>
-            <div className="text-[#39ff8e]">{h.output}</div>
-          </div>
-        ))}
-        <CycleLine
-          key={cycle}
-          cycleKey={cycle}
-          onDone={(pair) => {
-            setHistory((h) => [...h, pair].slice(-MAX_HISTORY));
-            setCycle((c) => c + 1);
-          }}
-        />
+        {printed.map((h, i) => {
+          const isLast = i === printed.length - 1;
+          return (
+            <div key={i} className={finished && isLast ? "" : "opacity-60"}>
+              <div className="text-[#556058]">$ {h.cmd}</div>
+              <div className="text-[#39ff8e]">{h.output}</div>
+            </div>
+          );
+        })}
+        {!finished && (
+          <CycleLine
+            key={printed.length}
+            pair={STATUS_LINES[printed.length]}
+            onDone={() => setPrinted((p) => [...p, STATUS_LINES[p.length]])}
+          />
+        )}
       </div>
     </div>
   );

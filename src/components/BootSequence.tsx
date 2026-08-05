@@ -9,10 +9,10 @@ const LINES: { text: string; delay: number }[] = [
   { text: profile.name.toLowerCase().replace(" ", "."), delay: 500 },
   { text: "$ cat role.txt", delay: 700 },
   { text: profile.title, delay: 400 },
-  { text: "$ ssh prod@iris-payroll --deploy zayzoon", delay: 700 },
+  { text: "$ ssh prod@pcmi-corp --deploy stack", delay: 700 },
   { text: "Authenticating... done", delay: 500 },
-  { text: "Provisioning 20,000+ employers... done", delay: 700 },
-  { text: "Rolling out on-demand pay... done", delay: 600 },
+  { text: "Provisioning Angular 21 + .NET Core... done", delay: 700 },
+  { text: "Wiring up Azure AI Services... done", delay: 600 },
   { text: "$ open portfolio.exe", delay: 600 },
 ];
 

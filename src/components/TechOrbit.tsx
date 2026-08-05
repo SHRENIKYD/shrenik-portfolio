@@ -1,5 +1,9 @@
 "use client";
 
+import { useState } from "react";
+import { profile } from "@/data/resume";
+import { withBasePath } from "@/lib/basePath";
+
 // Deterministic polar layout (no Math.random) — keeps SSR/CSR markup
 // identical. Two rings of skills orbit slowly around a center badge;
 // each label counter-rotates so the text itself stays upright.
@@ -48,6 +52,8 @@ function Ring({
 }
 
 export default function TechOrbit() {
+  const [photoFailed, setPhotoFailed] = useState(false);
+
   return (
     <div className="relative flex h-56 items-center justify-center">
       <div className="orbit-spin relative h-44 w-44">
@@ -58,8 +64,18 @@ export default function TechOrbit() {
       </div>
 
       {/* center badge — outside the rotating layer, stays fixed */}
-      <div className="absolute flex h-12 w-12 items-center justify-center rounded-full border-2 border-[#39ff8e] bg-[#0a0e0c] font-mono text-xs font-bold text-[#39ff8e] glow-pulse">
-        SY
+      <div className="absolute flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 border-[#39ff8e] bg-[#0a0e0c] glow-pulse">
+        {photoFailed ? (
+          <span className="font-mono text-xs font-bold text-[#39ff8e]">SY</span>
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={withBasePath(profile.avatar)}
+            alt={profile.name}
+            onError={() => setPhotoFailed(true)}
+            className="h-full w-full object-cover"
+          />
+        )}
       </div>
 
       <style>{`

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { profile } from "@/data/resume";
+import { withBasePath } from "@/lib/basePath";
 import Gutter from "@/components/Gutter";
 import { Mail, Phone, Download, Copy, Check } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/BrandIcons";
@@ -53,8 +54,6 @@ function CopyableRow({
 }
 
 export default function ContactTab() {
-  const base = process.env.NEXT_PUBLIC_BASE_PATH || "";
-
   return (
     <div className="flex">
       <Gutter />
@@ -107,7 +106,7 @@ export default function ContactTab() {
         </div>
 
         <a
-          href={`${base}/${profile.resumeFile}`}
+          href={withBasePath(`/${profile.resumeFile}`)}
           target="_blank"
           rel="noreferrer"
           className="mt-6 flex items-center justify-center gap-2 rounded-lg border border-[#39ff8e]/40 bg-[#39ff8e]/10 px-4 py-3 font-mono text-sm text-[#39ff8e] hover:bg-[#39ff8e]/20 transition-colors"

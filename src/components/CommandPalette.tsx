@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TABS } from "@/data/tabs";
 import { profile } from "@/data/resume";
+import { withBasePath } from "@/lib/basePath";
 import { Search, ExternalLink, Download, ArrowRight } from "lucide-react";
 
 interface Command {
@@ -55,8 +56,7 @@ export default function CommandPalette({
         label: "Download resume PDF",
         hint: "download",
         action: () => {
-          const base = process.env.NEXT_PUBLIC_BASE_PATH || "";
-          window.open(`${base}/${profile.resumeFile}`, "_blank");
+          window.open(withBasePath(`/${profile.resumeFile}`), "_blank");
         },
       },
     ],

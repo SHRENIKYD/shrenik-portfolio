@@ -19,6 +19,10 @@ export default function ArchitectureTab() {
   const cancelledRef = useRef(false);
 
   useEffect(() => {
+    // Reset on every (re-)mount — React Strict Mode intentionally runs
+    // mount -> cleanup -> mount once in dev, which would otherwise leave
+    // this permanently "cancelled" after the simulated unmount.
+    cancelledRef.current = false;
     return () => {
       cancelledRef.current = true;
     };
@@ -29,15 +33,17 @@ export default function ArchitectureTab() {
     setRunning(true);
     setPulseKey((k) => k + 1);
 
-    for (const layer of architectureLayers) {
-      if (cancelledRef.current) return;
-      setOpenLayer(layer.id);
-      await wait(HOLD_MS);
-      if (cancelledRef.current) return;
+    try {
+      for (const layer of architectureLayers) {
+        if (cancelledRef.current) return;
+        setOpenLayer(layer.id);
+        await wait(HOLD_MS);
+        if (cancelledRef.current) return;
+      }
+      setOpenLayer(architectureLayers[0].id);
+    } finally {
+      if (!cancelledRef.current) setRunning(false);
     }
-
-    setOpenLayer(architectureLayers[0].id);
-    setRunning(false);
   };
 
   return (

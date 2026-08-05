@@ -18,6 +18,7 @@ import AvatarReveal from "@/components/AvatarReveal";
 import TechOrbit from "@/components/TechOrbit";
 import TerminalStatusPanel from "@/components/TerminalStatusPanel";
 import CodeMinimap from "@/components/CodeMinimap";
+import { withBasePath } from "@/lib/basePath";
 import { useMultiLineTypewriter } from "@/components/useMultiLineTypewriter";
 import { GraduationCap, Sparkles, Languages, MapPin, Terminal } from "lucide-react";
 
@@ -259,7 +260,7 @@ export default function AboutTab() {
           variants={fadeUp}
           className="flex items-start gap-4 sm:gap-5"
         >
-          <AvatarReveal src="/images/avatar.jpg" alt={profile.name} />
+          <AvatarReveal src={withBasePath(profile.avatar)} alt={profile.name} />
 
           <div className="min-w-0">
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#e8efe9]">
@@ -275,7 +276,11 @@ export default function AboutTab() {
         {compiled && <RestOfAbout />}
       </div>
 
-      <aside className="hidden lg:flex w-64 shrink-0 flex-col gap-4 border-l border-[#1c2621] px-4 py-8">
+      {/* absorbs leftover width on wide viewports so the rail + minimap
+          hug the right edge instead of leaving dead space past them */}
+      <div className="flex-1" />
+
+      <aside className="hidden lg:flex lg:sticky lg:top-0 lg:self-start w-64 shrink-0 flex-col gap-4 border-l border-[#1c2621] px-4 py-8">
         <div>
           <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-[#556058]">
             stack.orbit

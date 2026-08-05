@@ -7,8 +7,9 @@ export const profile = {
   linkedin: "https://linkedin.com/in/shrenik-yd",
   github: "https://github.com/shrenikyd",
   resumeFile: "Shrenik_YD_Resume.pdf",
-  // relative to /public
-  avatar: "public/images/avatar.jpg",
+  // root-relative path under /public — always resolve through
+  // withBasePath() before using, since this deploys under a subpath
+  avatar: "/images/avatar.jpg",
   summary:
     "Full-stack .NET Software Engineer with 4+ years of experience building and maintaining scalable web applications across the .NET, Angular, and Knockout.js stack. Senior Software Engineer at Impetus Technologies, now working full-stack on the PCMI Corporation project (Angular 21, .NET Core, Azure AI Services), after leading the end-to-end integration of Zayzoon (on-demand pay) into a US payroll platform serving 20,000+ employers. Strong background in SQL, DevOps (Azure Pipelines, Git), and Agile delivery, with a track record of independently owning features from requirements through deployment.",
   summaryShort:

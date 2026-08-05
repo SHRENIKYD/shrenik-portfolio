@@ -4,7 +4,7 @@
 // deterministically from the index (not Math.random) so SSR and client
 // markup match exactly.
 const TOKEN_COLORS = ["#39ff8e55", "#6cb6ff55", "#ff6ac155", "#ffb45455", "#556058"];
-const LINE_COUNT = 70;
+const LINE_COUNT = 90;
 
 function widthFor(i: number) {
   const w = 20 + Math.abs(Math.sin(i * 1.31 + 0.4)) * 65;
@@ -15,9 +15,9 @@ export default function CodeMinimap() {
   return (
     <div
       aria-hidden
-      className="relative hidden xl:block w-7 shrink-0 overflow-hidden border-l border-[#1c2621] bg-[#0a0e0c]/60 py-4"
+      className="relative hidden xl:flex w-7 shrink-0 overflow-hidden border-l border-[#1c2621] bg-[#0a0e0c]/60 py-4"
     >
-      <div className="flex flex-col gap-[3px] px-1.5">
+      <div className="flex h-full w-full flex-col justify-between px-1.5">
         {Array.from({ length: LINE_COUNT }, (_, i) => (
           <span
             key={i}
