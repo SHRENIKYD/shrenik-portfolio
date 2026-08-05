@@ -11,9 +11,9 @@ export const profile = {
   // withBasePath() before using, since this deploys under a subpath
   avatar: "/images/avatar.jpg",
   summary:
-    "Full-stack .NET Software Engineer with 4+ years of experience building and maintaining scalable web applications across the .NET, Angular, and Knockout.js stack. Senior Software Engineer at Impetus Technologies, now working full-stack on the PCMI Corporation project (Angular 21, .NET Core, Azure AI Services), after leading the end-to-end integration of Zayzoon (on-demand pay) into a US payroll platform serving 20,000+ employers. Strong background in SQL, DevOps (Azure Pipelines, Git), and Agile delivery, with a track record of independently owning features from requirements through deployment.",
+    "A full-stack .NET engineer who's just as comfortable in C#, VB.NET, .NET Core, and Java on the back end as in Angular, Knockout.js, and vanilla JavaScript/HTML5/CSS3 on the front, with SQL Server and Azure (DevOps, AI Services) rounding out the stack. Thinks like a systems engineer — comfortable reasoning through data structures & algorithms and system design, not just wiring up features. Self-motivated and results-driven, with the time-management and multitasking instincts that come from juggling several codebases at once. Adapts quickly to new tools and technologies rather than sticking to what's familiar, and leans on strong decision-making and problem-solving skills to own things end to end.",
   summaryShort:
-    "Full-stack .NET engineer. 4+ years. Shipped on-demand pay to 20,000+ employers, now building PCMI Corporation's platform with Angular 21 + Azure AI. Prefers shipping features over writing about them — but here we are.",
+    "Full-stack .NET engineer — C#, VB.NET, .NET Core, Java, Angular, Knockout.js, SQL Server, Azure. Strong on DSA and system design, self-motivated, adaptable, and quick to pick up whatever tool the problem calls for.",
 };
 
 // Flavor comments shown on hover over each field in the About tab's
