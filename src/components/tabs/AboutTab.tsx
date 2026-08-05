@@ -125,7 +125,7 @@ function RestOfAbout() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="text-[15px] sm:text-base leading-relaxed text-[#a9b6ae]"
+            className="text-[15px] sm:text-base leading-relaxed text-[#c9d1d9]"
           >
             {verbose ? profile.summary : profile.summaryShort}
           </motion.p>
@@ -180,7 +180,7 @@ function RestOfAbout() {
         </div>
         <div className="rounded-lg border border-[#1c2621] bg-[#0d1310] p-4">
           <div className="font-semibold text-[#e8efe9]">{education.school}</div>
-          <div className="text-sm text-[#a9b6ae] mt-1">
+          <div className="text-sm text-[#c9d1d9] mt-1">
             {education.degree} · CGPA {education.cgpa}
           </div>
           <div className="text-xs text-[#6b7a72] mt-1 flex items-center gap-1">
@@ -202,7 +202,7 @@ function RestOfAbout() {
         </div>
         <ul className="space-y-2">
           {traits.map((t) => (
-            <li key={t} className="flex gap-2 text-sm text-[#a9b6ae] leading-relaxed">
+            <li key={t} className="flex gap-2 text-sm text-[#c9d1d9] leading-relaxed">
               <span className="text-[#39ff8e]">▸</span>
               {t}
             </li>
@@ -225,7 +225,7 @@ function RestOfAbout() {
           {languagesKnown.map((l) => (
             <span
               key={l}
-              className="rounded-full border border-[#1c2621] bg-[#0d1310] px-3 py-1 text-xs font-mono text-[#a9b6ae]"
+              className="rounded-full border border-[#1c2621] bg-[#0d1310] px-3 py-1 text-xs font-mono text-[#c9d1d9]"
             >
               {l}
             </span>
@@ -240,9 +240,9 @@ export default function AboutTab() {
   const [compiled, setCompiled] = useState(false);
 
   return (
-    <div className="flex">
+    <div className="flex min-h-full">
       <Gutter />
-      <div className="relative flex-1 min-w-0 px-4 sm:px-8 py-8 max-w-3xl">
+      <div className="relative flex-1 min-w-0 min-h-full px-4 sm:px-8 py-8 max-w-3xl bg-[#0a0e0c]">
         <motion.div
           initial="hidden"
           animate="show"

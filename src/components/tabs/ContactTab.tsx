@@ -55,9 +55,9 @@ function CopyableRow({
 
 export default function ContactTab() {
   return (
-    <div className="flex">
+    <div className="flex min-h-full">
       <Gutter />
-      <div className="flex-1 min-w-0 px-4 sm:px-8 py-8 max-w-3xl">
+      <div className="flex-1 min-w-0 min-h-full px-4 sm:px-8 py-8 max-w-3xl bg-[#0a0e0c]">
         <div className="font-mono text-sm text-[#6b7a72] mb-6">
           <span className="text-[#556058]">01</span> // #!/usr/bin/env bash
         </div>
@@ -68,7 +68,7 @@ export default function ContactTab() {
           className="rounded-lg border border-[#1c2621] bg-[#0d1310] p-4 sm:p-6 font-mono text-sm mb-8"
         >
           <div className="text-[#556058]">$ cat contact.txt</div>
-          <div className="mt-2 text-[#a9b6ae] leading-relaxed">
+          <div className="mt-2 text-[#c9d1d9] leading-relaxed">
             Open to interesting conversations, collaborations, and problems worth
             solving. Reach out any of the ways below — I read everything.
           </div>

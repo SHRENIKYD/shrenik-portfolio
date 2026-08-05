@@ -16,9 +16,9 @@ export default function ExperienceTab() {
   const [openJob, setOpenJob] = useState<number>(0);
 
   return (
-    <div className="flex">
+    <div className="flex min-h-full">
       <Gutter />
-      <div className="flex-1 min-w-0 px-4 sm:px-8 py-8 max-w-3xl">
+      <div className="flex-1 min-w-0 min-h-full px-4 sm:px-8 py-8 max-w-3xl bg-[#0a0e0c]">
         <div className="font-mono text-sm text-[#6b7a72] mb-6">
           <span className="text-[#556058]">01</span> // git log --graph --all
         </div>
@@ -95,7 +95,7 @@ export default function ExperienceTab() {
                                       {hash(b, ji + 1)}
                                     </span>
                                   </div>
-                                  <p className="pl-[18px] text-sm leading-relaxed text-[#a9b6ae]">
+                                  <p className="pl-[18px] text-sm leading-relaxed text-[#c9d1d9]">
                                     {b}
                                   </p>
                                 </li>
@@ -113,7 +113,7 @@ export default function ExperienceTab() {
                               {job.responsibilities.map((r) => (
                                 <li
                                   key={r}
-                                  className="flex gap-2 text-sm leading-relaxed text-[#a9b6ae]"
+                                  className="flex gap-2 text-sm leading-relaxed text-[#c9d1d9]"
                                 >
                                   <span className="text-[#6cb6ff]">▸</span>
                                   {r}

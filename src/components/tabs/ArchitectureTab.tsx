@@ -47,9 +47,9 @@ export default function ArchitectureTab() {
   };
 
   return (
-    <div className="flex">
+    <div className="flex min-h-full">
       <Gutter />
-      <div className="flex-1 min-w-0 px-4 sm:px-8 py-8 max-w-3xl">
+      <div className="flex-1 min-w-0 min-h-full px-4 sm:px-8 py-8 max-w-3xl bg-[#0a0e0c]">
         <div className="flex items-center justify-between flex-wrap gap-3 mb-2">
           <div className="font-mono text-sm text-[#6b7a72]">
             <span className="text-[#556058]">01</span> // how a request actually
@@ -136,7 +136,7 @@ export default function ArchitectureTab() {
                         className="overflow-hidden"
                       >
                         <div className="mt-2 rounded-lg border border-[#1c2621] bg-[#101713] px-4 py-3.5">
-                          <p className="text-sm leading-relaxed text-[#a9b6ae]">
+                          <p className="text-sm leading-relaxed text-[#c9d1d9]">
                             {layer.detail}
                           </p>
                           <div className="mt-3 flex flex-wrap gap-1.5">

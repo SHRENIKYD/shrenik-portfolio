@@ -3,12 +3,32 @@
 import { useState } from "react";
 import { profile } from "@/data/resume";
 import { withBasePath } from "@/lib/basePath";
+import {
+  CSharpIcon,
+  DotNetIcon,
+  AngularIcon,
+  SqlServerIcon,
+  AzureIcon,
+  KnockoutIcon,
+  GitIcon,
+  JavaIcon,
+} from "@/components/TechIcons";
 
 // Deterministic polar layout (no Math.random) — keeps SSR/CSR markup
 // identical. Two rings of skills orbit slowly around a center badge;
 // each label counter-rotates so the text itself stays upright.
-const RING_1 = ["C#", ".NET Core", "SQL"];
-const RING_2 = ["Angular 21", "Azure AI", "Knockout.js", "Git"];
+const RING_1 = [
+  { label: "C#", Icon: CSharpIcon },
+  { label: ".NET Core", Icon: DotNetIcon },
+  { label: "SQL", Icon: SqlServerIcon },
+  { label: "Java", Icon: JavaIcon },
+];
+const RING_2 = [
+  { label: "Angular 21", Icon: AngularIcon },
+  { label: "Azure AI", Icon: AzureIcon },
+  { label: "Knockout.js", Icon: KnockoutIcon },
+  { label: "Git", Icon: GitIcon },
+];
 
 function polar(angleDeg: number, radius: number) {
   const rad = (angleDeg * Math.PI) / 180;
@@ -23,13 +43,13 @@ function Ring({
   radius,
   color,
 }: {
-  items: string[];
+  items: { label: string; Icon: React.ComponentType<{ size?: number; className?: string }> }[];
   radius: number;
   color: string;
 }) {
   return (
     <>
-      {items.map((label, i) => {
+      {items.map(({ label, Icon }, i) => {
         const angle = (360 / items.length) * i;
         const { x, y } = polar(angle, radius);
         return (
@@ -39,9 +59,10 @@ function Ring({
             style={{ transform: `translate(${x}px, ${y}px)` }}
           >
             <span
-              className="orbit-counter-spin block -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border px-2 py-0.5 font-mono text-[10px]"
+              className="orbit-counter-spin flex items-center gap-1 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full border px-2 py-0.5 font-mono text-[10px]"
               style={{ borderColor: `${color}55`, color, background: "#0a0e0c" }}
             >
+              <Icon size={11} className="shrink-0" />
               {label}
             </span>
           </div>

@@ -11,9 +11,9 @@ export default function SkillsTab() {
   const [hovered, setHovered] = useState<string | null>(null);
 
   return (
-    <div className="flex">
+    <div className="flex min-h-full">
       <Gutter />
-      <div className="flex-1 min-w-0 px-4 sm:px-8 py-8 max-w-3xl">
+      <div className="flex-1 min-w-0 min-h-full px-4 sm:px-8 py-8 max-w-3xl bg-[#0a0e0c]">
         <div className="font-mono text-sm text-[#6b7a72] mb-6">
           <span className="text-[#556058]">01</span> // export default skills
         </div>
