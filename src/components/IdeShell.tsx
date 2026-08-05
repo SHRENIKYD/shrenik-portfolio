@@ -39,7 +39,7 @@ export default function IdeShell() {
   const ActiveComponent = TAB_COMPONENTS[active] ?? AboutTab;
 
   return (
-    <div className="scanlines flex h-screen w-full flex-col overflow-hidden">
+    <div className="scanlines relative z-10 flex h-screen w-full flex-col overflow-hidden">
       {/* window chrome */}
       <div className="flex items-center gap-3 border-b border-[#1c2621] bg-[#0a0e0c] px-4 py-2">
         <div className="flex gap-1.5">
@@ -67,6 +67,7 @@ export default function IdeShell() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.18 }}
+                className="min-h-full"
               >
                 <ActiveComponent />
               </motion.div>

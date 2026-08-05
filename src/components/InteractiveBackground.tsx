@@ -139,7 +139,7 @@ export default function InteractiveBackground() {
     function drawStatic() {
       // one-time faint grid for reduced-motion users — no animation loop
       ctx!.clearRect(0, 0, width, height);
-      ctx!.strokeStyle = "rgba(57, 255, 142, 0.05)";
+      ctx!.strokeStyle = "rgba(255, 209, 102, 0.05)";
       ctx!.lineWidth = 1;
       for (let x = 0; x <= width; x += spacing) {
         ctx!.beginPath();
@@ -198,7 +198,7 @@ export default function InteractiveBackground() {
           const idx = j * cols + i;
           const b = bright[idx];
           const alpha = 0.04 + b * 0.5;
-          ctx!.strokeStyle = `rgba(57, 255, 142, ${alpha})`;
+          ctx!.strokeStyle = `rgba(255, 209, 102, ${alpha})`;
           ctx!.lineWidth = 1;
           if (i < cols - 1) {
             const rIdx = idx + 1;
@@ -221,7 +221,7 @@ export default function InteractiveBackground() {
       for (let idx = 0; idx < cols * rows; idx++) {
         const b = bright[idx];
         if (b < 0.02) continue; // skip near-invisible dots, cheap win
-        ctx!.fillStyle = `rgba(126, 227, 255, ${0.15 + b * 0.85})`;
+        ctx!.fillStyle = `rgba(255, 224, 153, ${0.15 + b * 0.85})`;
         const r = 1 + b * 2;
         ctx!.beginPath();
         ctx!.arc(nodeX[idx], nodeY[idx], r, 0, Math.PI * 2);
@@ -238,7 +238,7 @@ export default function InteractiveBackground() {
           sparks.splice(k, 1);
           continue;
         }
-        ctx!.fillStyle = `rgba(57, 255, 142, ${s.life * 0.8})`;
+        ctx!.fillStyle = `rgba(255, 209, 102, ${s.life * 0.8})`;
         ctx!.beginPath();
         ctx!.arc(s.x, s.y, 1.6 * s.life + 0.4, 0, Math.PI * 2);
         ctx!.fill();

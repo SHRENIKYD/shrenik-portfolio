@@ -10,13 +10,20 @@ import { useEffect, useState } from "react";
 export function useMultiLineTypewriter(
   lines: string[],
   speed = 24,
-  gapBetweenLines = 250
+  gapBetweenLines = 250,
+  // When true, skips the animation entirely and renders the finished
+  // state immediately — used so repeat visits don't replay the intro.
+  skip = false
 ) {
-  const [rendered, setRendered] = useState<string[]>(() => lines.map(() => ""));
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [done, setDone] = useState(false);
+  const [rendered, setRendered] = useState<string[]>(() =>
+    skip ? [...lines] : lines.map(() => "")
+  );
+  const [activeIndex, setActiveIndex] = useState(skip ? -1 : 0);
+  const [done, setDone] = useState(skip);
 
   useEffect(() => {
+    if (skip) return;
+
     let cancelled = false;
     let charTimer: ReturnType<typeof setTimeout>;
     let gapTimer: ReturnType<typeof setTimeout>;
@@ -50,7 +57,7 @@ export function useMultiLineTypewriter(
       clearTimeout(gapTimer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [skip]);
 
   return { rendered, activeIndex, done };
 }

@@ -15,7 +15,7 @@ export default function CodeMinimap() {
   return (
     <div
       aria-hidden
-      className="relative hidden xl:flex w-7 shrink-0 overflow-hidden border-l border-[#1c2621] bg-[#0a0e0c]/60 py-4"
+      className="relative hidden xl:flex w-7 shrink-0 overflow-hidden border-l border-[#1c2621] bg-[#0a0e0c] py-4"
     >
       <div className="flex h-full w-full flex-col justify-between px-1.5">
         {Array.from({ length: LINE_COUNT }, (_, i) => (
