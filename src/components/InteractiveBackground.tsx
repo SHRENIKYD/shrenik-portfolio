@@ -5,16 +5,18 @@ import { useEffect, useRef } from "react";
 // Global, cursor-reactive background. Mounted once (see layout.tsx),
 // fixed behind everything. Combines:
 //  - a grid lattice acting as a particle network (nodes + connecting lines)
-//  - a ripple/warp: nodes near the cursor push outward
-//  - a spotlight reveal: nodes/lines near the cursor brighten, everything
+//  - a ripple/warp: nodes near the pointer push outward
+//  - a spotlight reveal: nodes/lines near the pointer brighten, everything
 //    else stays near-invisible
-//  - a spark trail: small particles emitted as the cursor moves, fading out
+//  - a spark trail: small particles emitted as the pointer moves, fading out
 //
 // Kept deliberately faint so it never fights page content for attention.
+// Responds to touch as well as mouse — on mobile there's no hover, so a
+// finger drag drives the same ripple/spotlight/spark logic.
 
-const SPACING = 56;
 const RADIUS = 180; // px, spotlight/ripple influence radius
 const MAX_SPARKS = 120;
+const RESIZE_DEBOUNCE_MS = 200;
 
 interface Spark {
   x: number;
@@ -34,51 +36,91 @@ export default function InteractiveBackground() {
     if (!ctx) return;
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
+    // Wider spacing (fewer nodes) on touch devices — keeps it smooth on
+    // weaker mobile GPUs and during scroll.
+    const spacing = isCoarsePointer ? 72 : 56;
 
     let width = 0;
     let height = 0;
-    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-    function resize() {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas!.width = width * dpr;
-      canvas!.height = height * dpr;
-      canvas!.style.width = `${width}px`;
-      canvas!.style.height = `${height}px`;
+    function applySize(w: number, h: number) {
+      width = w;
+      height = h;
+      canvas!.width = w * dpr;
+      canvas!.height = h * dpr;
+      canvas!.style.width = `${w}px`;
+      canvas!.style.height = `${h}px`;
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
-    resize();
-    window.addEventListener("resize", resize);
+    applySize(window.innerWidth, window.innerHeight);
 
-    const mouse = { x: -9999, y: -9999, active: false };
+    // Debounced resize — mobile browsers fire a burst of resize events
+    // while the address bar collapses/expands during scroll. Reacting to
+    // every single one thrashes (and visibly flickers) the canvas. Also
+    // skip entirely if only height changed by a small amount (just the
+    // address bar), since width is what actually matters for the grid.
+    let resizeTimer: ReturnType<typeof setTimeout> | null = null;
+    function onResize() {
+      if (resizeTimer) clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const widthChanged = Math.abs(w - width) > 1;
+        const heightChanged = Math.abs(h - height) > 120; // ignore small chrome-bar deltas
+        if (widthChanged || heightChanged) applySize(w, h);
+      }, RESIZE_DEBOUNCE_MS);
+    }
+    window.addEventListener("resize", onResize);
+
+    const pointer = { x: -9999, y: -9999, active: false };
     let lastSparkPos = { x: -9999, y: -9999 };
     const sparks: Spark[] = [];
 
-    function onMove(e: MouseEvent) {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-      mouse.active = true;
-
+    function maybeSpawnSpark() {
       if (reduceMotion) return;
-      const dx = mouse.x - lastSparkPos.x;
-      const dy = mouse.y - lastSparkPos.y;
+      const dx = pointer.x - lastSparkPos.x;
+      const dy = pointer.y - lastSparkPos.y;
       if (dx * dx + dy * dy > 400 && sparks.length < MAX_SPARKS) {
-        lastSparkPos = { x: mouse.x, y: mouse.y };
+        lastSparkPos = { x: pointer.x, y: pointer.y };
         sparks.push({
-          x: mouse.x,
-          y: mouse.y,
+          x: pointer.x,
+          y: pointer.y,
           vx: (Math.random() - 0.5) * 0.6,
           vy: (Math.random() - 0.5) * 0.6 - 0.15,
           life: 1,
         });
       }
     }
-    function onLeave() {
-      mouse.active = false;
+
+    function onMouseMove(e: MouseEvent) {
+      pointer.x = e.clientX;
+      pointer.y = e.clientY;
+      pointer.active = true;
+      maybeSpawnSpark();
     }
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseleave", onLeave);
+    function onMouseLeave() {
+      pointer.active = false;
+    }
+    function onTouchMove(e: TouchEvent) {
+      const t = e.touches[0];
+      if (!t) return;
+      pointer.x = t.clientX;
+      pointer.y = t.clientY;
+      pointer.active = true;
+      maybeSpawnSpark();
+    }
+    function onTouchEnd() {
+      pointer.active = false;
+    }
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseleave", onMouseLeave);
+    // passive: true — never blocks native scrolling
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("touchend", onTouchEnd, { passive: true });
+    window.addEventListener("touchcancel", onTouchEnd, { passive: true });
 
     let rafId: number;
     let visible = !document.hidden;
@@ -91,7 +133,7 @@ export default function InteractiveBackground() {
     function falloff(dist: number) {
       if (dist >= RADIUS) return 0;
       const t = 1 - dist / RADIUS;
-      return t * t; // ease-in, sharper near cursor
+      return t * t; // ease-in, sharper near the pointer
     }
 
     function drawStatic() {
@@ -99,13 +141,13 @@ export default function InteractiveBackground() {
       ctx!.clearRect(0, 0, width, height);
       ctx!.strokeStyle = "rgba(57, 255, 142, 0.05)";
       ctx!.lineWidth = 1;
-      for (let x = 0; x <= width; x += SPACING) {
+      for (let x = 0; x <= width; x += spacing) {
         ctx!.beginPath();
         ctx!.moveTo(x, 0);
         ctx!.lineTo(x, height);
         ctx!.stroke();
       }
-      for (let y = 0; y <= height; y += SPACING) {
+      for (let y = 0; y <= height; y += spacing) {
         ctx!.beginPath();
         ctx!.moveTo(0, y);
         ctx!.lineTo(width, y);
@@ -116,8 +158,8 @@ export default function InteractiveBackground() {
     function tick() {
       ctx!.clearRect(0, 0, width, height);
 
-      const cols = Math.ceil(width / SPACING) + 1;
-      const rows = Math.ceil(height / SPACING) + 1;
+      const cols = Math.ceil(width / spacing) + 1;
+      const rows = Math.ceil(height / spacing) + 1;
 
       // precompute displaced node positions + brightness
       const nodeX = new Float32Array(cols * rows);
@@ -127,14 +169,14 @@ export default function InteractiveBackground() {
       for (let j = 0; j < rows; j++) {
         for (let i = 0; i < cols; i++) {
           const idx = j * cols + i;
-          const gx = i * SPACING;
-          const gy = j * SPACING;
+          const gx = i * spacing;
+          const gy = j * spacing;
           let dx = 0;
           let dy = 0;
           let b = 0;
-          if (mouse.active) {
-            const ddx = gx - mouse.x;
-            const ddy = gy - mouse.y;
+          if (pointer.active) {
+            const ddx = gx - pointer.x;
+            const ddy = gy - pointer.y;
             const dist = Math.sqrt(ddx * ddx + ddy * ddy);
             const f = falloff(dist);
             if (f > 0 && dist > 0.01) {
@@ -150,7 +192,7 @@ export default function InteractiveBackground() {
         }
       }
 
-      // connecting lines (network) — brighter near cursor
+      // connecting lines (network) — brighter near the pointer
       for (let j = 0; j < rows; j++) {
         for (let i = 0; i < cols; i++) {
           const idx = j * cols + i;
@@ -212,10 +254,14 @@ export default function InteractiveBackground() {
     }
 
     return () => {
+      if (resizeTimer) clearTimeout(resizeTimer);
       cancelAnimationFrame(rafId);
-      window.removeEventListener("resize", resize);
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseleave", onLeave);
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseleave", onMouseLeave);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("touchcancel", onTouchEnd);
       document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
