@@ -47,9 +47,9 @@ export default function ArchitectureTab() {
   };
 
   return (
-    <div className="flex min-h-full">
+    <div className="flex w-full min-h-full items-start">
       <Gutter />
-      <div className="flex-1 min-w-0 min-h-full px-4 sm:px-8 py-8 max-w-3xl bg-[#0a0e0c]">
+      <div className="flex-1 min-w-0 px-4 sm:px-8 py-8 max-w-3xl bg-[#0a0e0c]">
         <div className="flex items-center justify-between flex-wrap gap-3 mb-2">
           <div className="font-mono text-sm text-[#6b7a72]">
             <span className="text-[#556058]">01</span> // how a request actually
@@ -166,9 +166,7 @@ export default function ArchitectureTab() {
         </div>
       </div>
 
-      {/* fills any leftover row width on wide viewports so raw
-          background is never exposed beside the content column */}
-      <div className="flex-1 bg-[#0a0e0c]" />
+      <div className="hidden lg:block flex-1" />
     </div>
   );
 }

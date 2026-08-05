@@ -38,12 +38,24 @@ const FIELD_LINES = [
 ];
 const FIELD_KEYS: (keyof typeof fieldNotes)[] = ["name", "title", "location"];
 
+// Module-level, not state — persists across remounts as you switch tabs
+// and come back, so the typing intro only ever plays once per page load.
+// Resets naturally on an actual page refresh.
+let introPlayedThisSession = false;
+
 function TypedFields({ onCompiled }: { onCompiled: () => void }) {
-  const { rendered, activeIndex, done } = useMultiLineTypewriter(FIELD_LINES, 20, 200);
+  const [skipIntro] = useState(introPlayedThisSession);
+  const { rendered, activeIndex, done } = useMultiLineTypewriter(
+    FIELD_LINES,
+    20,
+    200,
+    skipIntro
+  );
 
   useEffect(() => {
     if (!done) return;
-    const t = setTimeout(onCompiled, 500);
+    introPlayedThisSession = true;
+    const t = setTimeout(onCompiled, skipIntro ? 0 : 500);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [done]);
@@ -240,9 +252,9 @@ export default function AboutTab() {
   const [compiled, setCompiled] = useState(false);
 
   return (
-    <div className="flex min-h-full">
+    <div className="flex w-full min-h-full items-start">
       <Gutter />
-      <div className="relative flex-1 min-w-0 min-h-full px-4 sm:px-8 py-8 max-w-3xl bg-[#0a0e0c]">
+      <div className="relative flex-1 min-w-0 px-4 sm:px-8 py-8 max-w-3xl bg-[#0a0e0c]">
         <motion.div
           initial="hidden"
           animate="show"
@@ -276,12 +288,10 @@ export default function AboutTab() {
         {compiled && <RestOfAbout />}
       </div>
 
-      {/* absorbs leftover width on wide viewports so the rail + minimap
-          hug the right edge instead of leaving raw background exposed */}
-      <div className="flex-1 bg-[#0a0e0c]" />
+      <div className="hidden lg:block flex-1" />
 
-      <aside className="hidden lg:flex lg:sticky lg:top-0 lg:self-start w-64 shrink-0 flex-col gap-4 border-l border-[#1c2621] px-4 py-8">
-        <div>
+      <aside className="hidden lg:flex lg:sticky lg:top-0 lg:self-start w-64 shrink-0 flex-col gap-4 border-l border-[#1c2621] bg-[#0a0e0c] px-4 py-8">
+        <div className="rounded-lg border border-[#1c2621] bg-[#0d1310] p-3">
           <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-[#556058]">
             stack.orbit
           </div>
