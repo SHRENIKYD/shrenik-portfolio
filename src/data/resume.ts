@@ -7,9 +7,34 @@ export const profile = {
   linkedin: "https://linkedin.com/in/shrenik-yd",
   github: "https://github.com/shrenikyd",
   resumeFile: "Shrenik_YD_Resume.pdf",
+  // relative to /public
+  avatar: "images/avatar.jpg",
   summary:
     "Full-stack .NET Software Engineer with 4+ years of experience building and maintaining scalable web applications across the .NET, Angular, and Knockout.js stack. Currently a Senior Software Engineer at Impetus Technologies, working full-stack on a US payroll platform serving 20,000+ employers, including leading the end-to-end integration of Zayzoon (on-demand pay). Strong background in SQL, DevOps (Azure Pipelines, Git), and Agile delivery, with a track record of independently owning features from requirements through deployment.",
+  summaryShort:
+    "Full-stack .NET engineer. 4+ years. Shipped on-demand pay to 20,000+ employers. Prefers shipping features over writing about them — but here we are.",
 };
+
+// Flavor comments shown on hover over each field in the About tab's
+// "object literal" — purely decorative, kept factual/true to the resume.
+export const fieldNotes = {
+  name: "// resume says Shrenik YD",
+  title: "// current role, since Jan 2025",
+  location: "// IST — usually online till late",
+};
+
+export interface TimelineEvent {
+  year: number;
+  label: string;
+  detail: string;
+}
+
+// Powers the About-tab career sparkline.
+export const timelineEvents: TimelineEvent[] = [
+  { year: 2019, label: "MCA begins", detail: "Nitte Meenakshi Institute of Technology" },
+  { year: 2021, label: "Quinnox", detail: "Joined as Software Engineer — CRE & ALFR projects" },
+  { year: 2025, label: "Impetus", detail: "Senior Software Engineer — IRIS payroll platform" },
+];
 
 export type Bullet = string;
 
