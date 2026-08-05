@@ -1,26 +1,109 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0e0c;
+  --surface: #0d1310;
+  --surface-2: #101713;
+  --border: #1c2621;
+  --foreground: #c9d1d9;
+  --muted: #6b7a72;
+  --accent: #39ff8e;
+  --accent-dim: #1f8f52;
+  --accent-glow: rgba(57, 255, 142, 0.35);
+  --pink: #ff6ac1;
+  --blue: #6cb6ff;
+  --orange: #ffb454;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-dim) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--accent-dim);
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  background-image:
+    radial-gradient(circle at 15% 0%, rgba(57, 255, 142, 0.06), transparent 40%),
+    radial-gradient(circle at 85% 100%, rgba(108, 182, 255, 0.05), transparent 45%);
+}
+
+.font-mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+/* blinking terminal cursor */
+@keyframes blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+.cursor-blink::after {
+  content: "\2588";
+  margin-left: 2px;
+  color: var(--accent);
+  animation: blink 1s step-start infinite;
+}
+
+/* subtle scanline overlay for the CRT/hacker feel */
+.scanlines::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.015) 0px,
+    rgba(255, 255, 255, 0.015) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: overlay;
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--accent-glow);
+  }
+  50% {
+    box-shadow: 0 0 18px 2px var(--accent-glow);
+  }
+}
+.glow-pulse {
+  animation: glow-pulse 2.4s ease-in-out infinite;
+}
+
+.text-glow {
+  text-shadow: 0 0 12px var(--accent-glow);
 }

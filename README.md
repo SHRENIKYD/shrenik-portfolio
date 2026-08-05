@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Shrenik YD — Interactive Resume Site
 
-## Getting Started
+A terminal/IDE-themed, single-page interactive portfolio built from [Shrenik YD's](mailto:shrenikyd@gmail.com) resume. Dark theme, terminal-green accent, VS Code-style shell (file explorer, tabs, status bar), a `Ctrl/Cmd+K` command palette, and an interactive "architecture diagram" tab that animates how a request flows through the systems described in the resume.
 
-First, run the development server:
+Built with Next.js (App Router) + TypeScript + Tailwind CSS v4 + Framer Motion, exported as a fully static site so it can be hosted for free on GitHub Pages.
+
+## Run locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Edit content
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+All resume content lives in one place: [`src/data/resume.ts`](src/data/resume.ts) (profile, jobs, skills, education, architecture narrative). Tab/file labels are in [`src/data/tabs.ts`](src/data/tabs.ts). Change the data files — the UI updates automatically, no need to touch components.
 
-## Learn More
+To swap the résumé PDF users can download from the Contact tab / command palette, replace [`public/Shrenik_YD_Resume.pdf`](public/Shrenik_YD_Resume.pdf) (keep the same filename, or update `resumeFile` in `resume.ts`).
 
-To learn more about Next.js, take a look at the following resources:
+## Deploy to GitHub Pages
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This repo ships a GitHub Actions workflow ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)) that builds the static export and deploys it automatically on every push to `main`/`master`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Push this repo to GitHub.
+2. In the repo, go to **Settings → Pages → Build and deployment → Source**, select **GitHub Actions**.
+3. Push to `main` (or run the workflow manually from the **Actions** tab). Your site will be live at:
+   - `https://<username>.github.io/<repo-name>/` (project page — the default, what the workflow assumes), or
+   - `https://<username>.github.io/` if this repo is literally named `<username>.github.io` (a user page).
 
-## Deploy on Vercel
+If it's a **user page** (`<username>.github.io`), open `.github/workflows/deploy.yml` and delete the `NEXT_PUBLIC_BASE_PATH` line under the build step — user pages are served from the domain root and don't need a base path.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Manual build (no CI)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+NEXT_PUBLIC_BASE_PATH=/your-repo-name npm run build
+```
+
+The static site is written to `out/`. Push that folder's contents to a `gh-pages` branch (or any static host) if you'd rather not use the included Actions workflow.
+
+## Stack
+
+- Next.js 16 (static export, `output: "export"`)
+- TypeScript
+- Tailwind CSS v4
+- Framer Motion (animations)
+- lucide-react (icons; brand icons for GitHub/LinkedIn are small inline SVGs in [`src/components/BrandIcons.tsx`](src/components/BrandIcons.tsx) since lucide dropped logo icons)
