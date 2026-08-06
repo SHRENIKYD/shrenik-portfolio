@@ -15,7 +15,7 @@ import Counter from "@/components/Counter";
 import CareerSparkline from "@/components/CareerSparkline";
 import SkillConstellation from "@/components/SkillConstellation";
 import AvatarReveal from "@/components/AvatarReveal";
-import TechOrbit from "@/components/TechOrbit";
+import NowFocus from "@/components/NowFocus";
 import TerminalStatusPanel from "@/components/TerminalStatusPanel";
 import CodeMinimap from "@/components/CodeMinimap";
 import { withBasePath } from "@/lib/basePath";
@@ -293,9 +293,9 @@ export default function AboutTab() {
       <aside className="hidden lg:flex lg:sticky lg:top-0 lg:self-start w-64 shrink-0 flex-col gap-4 border-l border-[#1c2621] bg-[#0a0e0c] px-4 py-8">
         <div className="rounded-lg border border-[#1c2621] bg-[#0d1310] p-3">
           <div className="mb-2 font-mono text-[10px] uppercase tracking-widest text-[#556058]">
-            stack.orbit
+            now.focus
           </div>
-          <TechOrbit />
+          <NowFocus />
         </div>
 
         <div className="rounded-lg border border-[#1c2621] bg-[#0d1310] p-3">
