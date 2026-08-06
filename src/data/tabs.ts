@@ -8,6 +8,7 @@ export interface TabDef {
 export const TABS: TabDef[] = [
   { id: "about", fileName: "about.tsx", folder: "src", lang: "tsx" },
   { id: "experience", fileName: "experience.timeline.ts", folder: "src", lang: "ts" },
+  { id: "projects", fileName: "projects.registry.ts", folder: "src", lang: "ts" },
   { id: "architecture", fileName: "architecture.diagram", folder: "src", lang: "diagram" },
   { id: "skills", fileName: "skills.config.json", folder: "src", lang: "json" },
   { id: "contact", fileName: "contact.sh", folder: "scripts", lang: "sh" },

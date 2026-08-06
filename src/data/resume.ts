@@ -33,8 +33,8 @@ export interface TimelineEvent {
 // Powers the About-tab career sparkline.
 export const timelineEvents: TimelineEvent[] = [
   { year: 2019, label: "MCA begins", detail: "Nitte Meenakshi Institute of Technology" },
-  { year: 2021, label: "Quinnox", detail: "Joined as Software Engineer — CRE & ALFR projects" },
-  { year: 2025, label: "Impetus", detail: "Senior Software Engineer — IRIS payroll platform" },
+  { year: 2021, label: "Quinnox", detail: "Joined as Software Engineer — WM's CRE, ALFR & Power BI reporting" },
+  { year: 2025, label: "Impetus", detail: "Senior Software Engineer — IRIS Software Group's payroll platforms" },
 ];
 
 export type Bullet = string;
@@ -45,9 +45,11 @@ export interface Job {
   period: string;
   branch: string; // git-branch style label
   projects: {
-    name: string;
+    name: string; // the application actually built/maintained
+    client?: string; // the company the employer staffed Shrenik to build it for
     period?: string;
     bullets: Bullet[];
+    highlight?: string; // standout stat/callout for the Projects tab card
   }[];
   responsibilities?: Bullet[];
   tech: string[];
@@ -61,24 +63,35 @@ export const jobs: Job[] = [
     branch: "main",
     projects: [
       {
-        name: "PCMI Corporation",
+        name: "Claims Intelligence",
+        client: "PCMI Corporation",
         period: "Jul 2026 — Present",
         bullets: [
-          "Working as a full-stack developer on the PCMI Corporation project, building features across both front-end and back-end layers.",
+          "Working as a full-stack developer on Claims Intelligence, PCMI's AI-powered F&I claims platform, building features across both front-end and back-end layers.",
           "Building new front-end modules with Angular 21 and back-end services with .NET Core.",
           "Integrating Azure AI Services into the platform to support AI-driven functionality.",
           "Designing and consuming APIs backed by SQL Server for core application workflows.",
         ],
       },
       {
-        name: "IRIS — US Payroll Application",
+        name: "USPAYROLL",
+        client: "IRIS Software Group",
         period: "Jan 2025 — Jun 2026",
         bullets: [
-          "Worked as a full-stack developer across the entire application lifecycle — front-end, back-end, and API layers — for a US-based payroll platform.",
+          "Worked as a full-stack developer across the entire application lifecycle — front-end, back-end, and API layers.",
           "Developed and maintained functionality using VB.NET and C# across legacy and new modules of the platform.",
           "Built and consumed C# Web APIs to support payroll processing and data integration.",
+          "Led the end-to-end integration of Zayzoon (on-demand pay), scaling the feature to serve 20,000+ employers and several lakh employees.",
+        ],
+        highlight: "20,000+ employers served",
+      },
+      {
+        name: "IRISPAYROLL",
+        client: "IRIS Software Group",
+        period: "Jan 2025 — Jun 2026",
+        bullets: [
           "Delivered front-end features using Knockout.js, the application's core front-end framework.",
-          "Led the end-to-end integration of Zayzoon (on-demand pay) into the payroll platform, scaling the feature to serve 20,000+ employers and several lakh employees.",
+          "Supported multi-location payroll service delivery across US client sites.",
           "Collaborated with cross-functional teams to gather requirements, implement features, and resolve defects in an Agile environment.",
         ],
       },
@@ -101,7 +114,8 @@ export const jobs: Job[] = [
     branch: "quinnox/legacy",
     projects: [
       {
-        name: "CRE — Corporate Real Estate",
+        name: "CRE",
+        client: "WM (Waste Management, Inc.)",
         bullets: [
           "Delivered end-to-end application development for comprehensive waste management services.",
           "Built and optimized scalable .NET Core and Angular solutions for garbage collection, recycling pickup, and dumpster rental services.",
@@ -109,8 +123,16 @@ export const jobs: Job[] = [
       },
       {
         name: "ALFR — Annual Landfill Review",
+        client: "WM (Waste Management, Inc.)",
         bullets: [
           "Automated exporting and analysis of Excel documents with integrated SQL queries.",
+        ],
+      },
+      {
+        name: "Power BI Reporting",
+        client: "WM (Waste Management, Inc.)",
+        bullets: [
+          "Built landfill and waste-service reporting dashboards in Power BI, surfacing operational metrics for WM's landfill and collection operations.",
         ],
       },
     ],
@@ -121,7 +143,7 @@ export const jobs: Job[] = [
       "Implemented DevOps practices using Azure Pipelines and Git for CI/CD workflows.",
       "Collaborated with cross-functional teams for defect fixes, enhancements, and new feature implementation.",
     ],
-    tech: [".NET Core 8", "C#", "JavaScript", "SQL", "Azure", "MVC", "HTML5", "CSS3"],
+    tech: [".NET Core 8", "C#", "JavaScript", "SQL", "Azure", "MVC", "HTML5", "CSS3", "Power BI"],
   },
 ];
 
@@ -188,7 +210,7 @@ export const architectureLayers: ArchLayer[] = [
     label: "Front End",
     sublabel: "Angular 21 · Knockout.js · HTML5/CSS3",
     detail:
-      "Owns the screens people actually touch — from Knockout.js-driven views on the legacy IRIS platform to Angular modules on CRE, and now Angular 21 on the PCMI Corporation project. Built and shipped interactive UI for on-demand pay requests, garbage/recycling/dumpster service workflows, landfill reporting, and PCMI's newer full-stack features.",
+      "Owns the screens people actually touch — from Knockout.js-driven views on IRIS Software Group's payroll platforms to Angular modules on WM's CRE, and now Angular 21 on PCMI's Claims Intelligence. Built and shipped interactive UI for on-demand pay requests, garbage/recycling/dumpster service workflows, landfill reporting, and Claims Intelligence's newer full-stack features.",
     tech: ["Angular 21", "Knockout.js", "HTML5", "CSS3", "JavaScript"],
   },
   {
@@ -196,7 +218,7 @@ export const architectureLayers: ArchLayer[] = [
     label: "API Layer",
     sublabel: "C# Web API",
     detail:
-      "Designed and consumed C# Web APIs that move data between front-end and back-end services — including the Zayzoon on-demand-pay integration on IRIS, wired so 20,000+ employers and several lakh employees could draw earned wages before payday, and the API layer now underpinning the PCMI Corporation project.",
+      "Designed and consumed C# Web APIs that move data between front-end and back-end services — including the Zayzoon on-demand-pay integration on IRIS Software Group's USPAYROLL, wired so 20,000+ employers and several lakh employees could draw earned wages before payday, and the API layer now underpinning PCMI's Claims Intelligence project.",
     tech: ["C# Web API", ".NET Core", "REST"],
   },
   {
@@ -204,7 +226,7 @@ export const architectureLayers: ArchLayer[] = [
     label: "Application / Backend",
     sublabel: "VB.NET · C# · .NET Core · MVC",
     detail:
-      "Maintains and extends business logic across legacy VB.NET modules and modern C#/.NET Core services. On CRE, this meant MVC-architecture services for waste management operations; on IRIS, payroll processing logic spanning years-old code and new feature work side by side. Now building out .NET Core services for the PCMI Corporation project.",
+      "Maintains and extends business logic across legacy VB.NET modules and modern C#/.NET Core services. On WM's CRE, this meant MVC-architecture services for waste management operations; on IRIS Software Group's payroll platforms, payroll processing logic spanning years-old code and new feature work side by side. Now building out .NET Core services for PCMI's Claims Intelligence project.",
     tech: ["VB.NET", "C#", ".NET Core 8", ".NET MVC 8", "Entity Framework", "ADO.NET", "LINQ"],
   },
   {
@@ -212,7 +234,7 @@ export const architectureLayers: ArchLayer[] = [
     label: "AI Services",
     sublabel: "Azure AI Services",
     detail:
-      "The newest layer — integrating Azure AI Services into the PCMI Corporation build, adding intelligent capabilities alongside the traditional API and data layers.",
+      "The newest layer — integrating Azure AI Services into PCMI's Claims Intelligence build, adding intelligent capabilities alongside the traditional API and data layers.",
     tech: ["Azure AI Services"],
   },
   {
@@ -234,7 +256,7 @@ export const architectureLayers: ArchLayer[] = [
 ];
 
 export const impactStats = [
-  { value: 20000, suffix: "+", label: "employers served on IRIS" },
+  { value: 20000, suffix: "+", label: "employers served on USPAYROLL" },
   { value: 4, suffix: "+", label: "years shipping production .NET" },
   { value: 2, suffix: "", label: "companies, zero gaps" },
   { value: 8.43, suffix: "", label: "CGPA, MCA" },

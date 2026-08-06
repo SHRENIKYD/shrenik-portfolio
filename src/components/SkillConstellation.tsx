@@ -57,12 +57,12 @@ const CATEGORY_LABELS: Record<Category, string> = {
 // Shown in the detail chip when a node is clicked (pinned).
 const NODE_DETAILS: Record<string, string> = {
   "C#": "4+ yrs — core language across both roles",
-  ".NET Core": "Primary backend framework on PCMI and IRIS",
-  "Angular 21": "Newest front end — PCMI Corporation project",
+  ".NET Core": "Primary backend framework on Claims Intelligence and IRIS's payroll apps",
+  "Angular 21": "Newest front end — PCMI's Claims Intelligence project",
   SQL: "Queries, views, and stored procs on every project",
-  "Azure AI": "Newest layer — AI-driven features on PCMI",
-  "VB.NET": "Legacy and new modules on the IRIS payroll platform",
-  "Knockout.js": "Core front-end framework for IRIS",
+  "Azure AI": "Newest layer — AI-driven features on Claims Intelligence",
+  "VB.NET": "Legacy and new modules on IRIS's payroll platforms",
+  "Knockout.js": "Core front-end framework for IRIS's payroll apps",
   Git: "Version control across both companies",
 };
 

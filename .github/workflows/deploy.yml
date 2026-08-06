@@ -29,11 +29,11 @@ jobs:
         run: npm ci
 
       - name: Build (static export)
-        env:
-          # Sets basePath to /<repo-name> automatically — required for
-          # project pages (username.github.io/<repo-name>). If this repo
-          # IS your username.github.io user page, delete this env line.
-          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+        # No NEXT_PUBLIC_BASE_PATH here — this site is served from a custom
+        # domain (public/CNAME) at the domain root, not from
+        # username.github.io/<repo-name>/, so basePath must stay empty. If
+        # the custom domain is ever removed and this reverts to a plain
+        # project page, re-add: NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
         run: npm run build
 
       - name: Add .nojekyll
