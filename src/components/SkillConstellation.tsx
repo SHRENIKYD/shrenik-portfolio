@@ -9,26 +9,33 @@ import { useState } from "react";
 // for the hover scale-up and label width) so nothing clips the card edges.
 type Category = "frontend" | "backend" | "data" | "cloud";
 
+// Positioned top-to-bottom in the same order as the request actually
+// flows through the stack on the Architecture tab (front end -> backend
+// -> AI/cloud -> data -> devops), instead of an arbitrary scatter — so
+// the graph reads as a pipeline, not just a decorative cluster.
 const NODES: { label: string; x: number; y: number; delay: number; category: Category }[] = [
-  { label: "C#", x: 10, y: 14, delay: 0, category: "backend" },
-  { label: ".NET Core", x: 30, y: 48, delay: 0.6, category: "backend" },
-  { label: "Angular 21", x: 74, y: 12, delay: 1.2, category: "frontend" },
-  { label: "SQL", x: 68, y: 66, delay: 1.8, category: "data" },
-  { label: "Azure AI", x: 50, y: 32, delay: 2.4, category: "cloud" },
-  { label: "VB.NET", x: 14, y: 72, delay: 3.0, category: "backend" },
-  { label: "Knockout.js", x: 70, y: 46, delay: 3.6, category: "frontend" },
-  { label: "Git", x: 46, y: 78, delay: 4.2, category: "cloud" },
+  { label: "Angular 21", x: 70, y: 10, delay: 0, category: "frontend" },
+  { label: "Knockout.js", x: 28, y: 12, delay: 0.6, category: "frontend" },
+  { label: "C#", x: 14, y: 34, delay: 1.2, category: "backend" },
+  { label: ".NET Core", x: 45, y: 36, delay: 1.8, category: "backend" },
+  { label: "VB.NET", x: 78, y: 34, delay: 2.4, category: "backend" },
+  { label: "Azure AI", x: 50, y: 54, delay: 3.0, category: "cloud" },
+  { label: "SQL", x: 58, y: 70, delay: 3.6, category: "data" },
+  { label: "Git", x: 42, y: 84, delay: 4.2, category: "cloud" },
 ];
 
+// Mostly adjacent-stage links (frontend -> backend -> cloud -> data ->
+// devops), so the pulse packets below visibly travel top-to-bottom
+// through the pipeline rather than bouncing between unrelated nodes.
 const EDGES: [number, number][] = [
-  [0, 1],
-  [0, 4],
-  [1, 5],
-  [2, 4],
-  [2, 6],
-  [3, 6],
-  [4, 7],
-  [3, 7],
+  [1, 2], // Knockout.js -> C#
+  [0, 4], // Angular 21 -> VB.NET
+  [2, 3], // C# -> .NET Core
+  [3, 4], // .NET Core -> VB.NET
+  [3, 5], // .NET Core -> Azure AI
+  [5, 6], // Azure AI -> SQL
+  [6, 7], // SQL -> Git
+  [5, 7], // Azure AI -> Git
 ];
 
 // Stable per-category color — deliberately not random, so a cluster's
