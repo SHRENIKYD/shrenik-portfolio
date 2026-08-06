@@ -81,7 +81,13 @@ export default function ArchitectureTab() {
               return (
                 <div key={layer.id} className="relative pl-14 sm:pl-16">
                   {/* node dot */}
-                  <span className="absolute left-4 sm:left-5 top-4 h-4 w-4 rounded-full border-2 border-[#3a4a41] bg-[#0a0e0c] z-10" />
+                  <span
+                    className={`absolute left-4 sm:left-5 top-4 h-4 w-4 rounded-full border-2 z-10 ${
+                      isOpen
+                        ? "border-[#ff6ac1] bg-[#0a0e0c] glow-pulse"
+                        : "border-[#3a4a41] bg-[#0a0e0c]"
+                    }`}
+                  />
 
                   {/* traveling pulse */}
                   <AnimatePresence>
