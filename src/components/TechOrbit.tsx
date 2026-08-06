@@ -41,9 +41,8 @@ const RING_2 = [
 // same elliptical path — since the whole ring rotates clockwise (angle
 // increases with time), a smaller angle is where the badge already was.
 const TRAIL_STEPS = [
-  { deg: 7, opacity: 0.32, scale: 0.62 },
-  { deg: 14, opacity: 0.18, scale: 0.46 },
-  { deg: 21, opacity: 0.08, scale: 0.32 },
+  { deg: 8, opacity: 0.26, scale: 0.56 },
+  { deg: 16, opacity: 0.12, scale: 0.38 },
 ];
 
 function polarEllipse(angleDeg: number, radiusX: number, radiusY: number) {
@@ -61,6 +60,7 @@ function Ring({
   badgeSize,
   iconSize,
   color,
+  angleOffset = 0,
 }: {
   items: { label: string; Icon: React.ComponentType<{ size?: number; className?: string }> }[];
   radiusX: number;
@@ -68,11 +68,17 @@ function Ring({
   badgeSize: number;
   iconSize: number;
   color: string;
+  // Both rings otherwise share the same 4 starting angles and rotate in
+  // lockstep, so a ring-1 badge and a ring-2 badge (plus their comet
+  // trails) would always sit on the same line together — crowded-looking
+  // near the edges even though nothing actually overflows. Offsetting one
+  // ring's angles spreads badges out evenly around the ellipse instead.
+  angleOffset?: number;
 }) {
   return (
     <>
       {items.map(({ label, Icon }, i) => {
-        const angle = (360 / items.length) * i;
+        const angle = (360 / items.length) * i + angleOffset;
         const { x, y } = polarEllipse(angle, radiusX, radiusY);
         // Negative delay = "already this far into the loop" at t=0, which
         // phase-shifts the shared z/depth keyframes by this item's own
@@ -172,7 +178,15 @@ export default function TechOrbit() {
         <OrbitGuide radiusX={80} radiusY={44} />
         <OrbitGuide radiusX={44} radiusY={24} />
         <Ring items={RING_2} radiusX={80} radiusY={44} badgeSize={28} iconSize={13} color="#6cb6ff" />
-        <Ring items={RING_1} radiusX={44} radiusY={24} badgeSize={24} iconSize={11} color="#39ff8e" />
+        <Ring
+          items={RING_1}
+          radiusX={44}
+          radiusY={24}
+          badgeSize={24}
+          iconSize={11}
+          color="#39ff8e"
+          angleOffset={45}
+        />
       </div>
 
       {/* center badge — outside the rotating layer, stays fixed. z-10 sits
