@@ -80,6 +80,11 @@ export default function ExperienceTab() {
                           <div key={proj.name}>
                             <div className="flex items-baseline gap-2 flex-wrap font-mono text-xs uppercase tracking-wide text-[#39ff8e] mb-2">
                               {proj.name}
+                              {proj.client && (
+                                <span className="text-[10px] normal-case tracking-normal text-[#6cb6ff]">
+                                  for {proj.client}
+                                </span>
+                              )}
                               {proj.period && (
                                 <span className="text-[10px] normal-case tracking-normal text-[#556058]">
                                   {proj.period}

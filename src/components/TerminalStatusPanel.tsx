@@ -7,7 +7,7 @@ import { useMultiLineTypewriter } from "@/components/useMultiLineTypewriter";
 // education, and total experience.
 const STATUS_LINES: { cmd: string; output: string }[] = [
   { cmd: "whoami", output: "Senior Software Engineer" },
-  { cmd: "current --project", output: "PCMI Corporation @ Impetus Technologies" },
+  { cmd: "current --project", output: "Claims Intelligence @ PCMI Corporation" },
   { cmd: "cat education.txt", output: "MCA · Nitte Meenakshi · CGPA 8.43" },
   { cmd: "uptime --career", output: "4 years, 10 months" },
 ];

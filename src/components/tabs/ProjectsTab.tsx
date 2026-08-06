@@ -61,9 +61,12 @@ export default function ProjectsTab() {
                 )}
               </div>
 
-              <h3 className="text-base font-bold text-[#e8efe9] mb-2">
+              <h3 className="text-base font-bold text-[#e8efe9] mb-1">
                 {proj.name}
               </h3>
+              <div className="mb-2 font-mono text-[11px] text-[#6cb6ff] min-h-[1.1em]">
+                {proj.client && <>for {proj.client}</>}
+              </div>
 
               {proj.highlight && (
                 <div className="mb-3 inline-flex w-fit items-center gap-1.5 rounded-full border border-[#39ff8e]/30 bg-[#39ff8e]/10 px-2.5 py-1 font-mono text-[11px] text-[#39ff8e]">
