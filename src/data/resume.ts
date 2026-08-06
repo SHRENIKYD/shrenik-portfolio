@@ -161,6 +161,17 @@ export const traits = [
 
 export const languagesKnown = ["English", "Kannada"];
 
+// Rotating "fortune"-style quips for the About sidebar's now.focus panel —
+// dry, factual-with-a-wink, matching the tone of profile.summaryShort above.
+export const devQuotes = [
+  "reads the stack trace before the Stack Overflow tab",
+  "ships the feature, then ships the polish",
+  "two companies, zero employment gaps",
+  "picks up new tools faster than new small talk",
+  "still owns the Zayzoon integration, four years in",
+  "believes the best documentation is a working example",
+];
+
 // Architecture-narrative layers: how a request actually flows through the
 // systems Shrenik has built, top (user-facing) to bottom (infra).
 export interface ArchLayer {
