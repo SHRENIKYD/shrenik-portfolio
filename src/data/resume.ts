@@ -48,6 +48,7 @@ export interface Job {
     name: string;
     period?: string;
     bullets: Bullet[];
+    highlight?: string; // standout stat/callout for the Projects tab card
   }[];
   responsibilities?: Bullet[];
   tech: string[];
@@ -81,6 +82,7 @@ export const jobs: Job[] = [
           "Led the end-to-end integration of Zayzoon (on-demand pay) into the payroll platform, scaling the feature to serve 20,000+ employers and several lakh employees.",
           "Collaborated with cross-functional teams to gather requirements, implement features, and resolve defects in an Agile environment.",
         ],
+        highlight: "20,000+ employers served",
       },
     ],
     tech: [

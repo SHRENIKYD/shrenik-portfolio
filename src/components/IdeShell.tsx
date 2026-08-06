@@ -8,6 +8,7 @@ import StatusBar from "@/components/StatusBar";
 import CommandPalette from "@/components/CommandPalette";
 import AboutTab from "@/components/tabs/AboutTab";
 import ExperienceTab from "@/components/tabs/ExperienceTab";
+import ProjectsTab from "@/components/tabs/ProjectsTab";
 import ArchitectureTab from "@/components/tabs/ArchitectureTab";
 import SkillsTab from "@/components/tabs/SkillsTab";
 import ContactTab from "@/components/tabs/ContactTab";
@@ -16,6 +17,7 @@ import { profile } from "@/data/resume";
 const TAB_COMPONENTS: Record<string, React.ComponentType> = {
   about: AboutTab,
   experience: ExperienceTab,
+  projects: ProjectsTab,
   architecture: ArchitectureTab,
   skills: SkillsTab,
   contact: ContactTab,
