@@ -40,21 +40,25 @@ type Planet = {
 
 // Tight, varied radii/periods (not two shared "rings") so the coil looks
 // like a real, slightly irregular spring rather than a repeating pattern —
-// inner techs orbit fast and close, outer ones slower and looser.
+// inner techs orbit fast and close, outer ones slower and looser. The floor
+// of radiusFrac (0.55) is deliberate, not arbitrary: an orbit's *vertical*
+// reach is radius * ELLIPSE_SQUISH, and that has to clear the avatar's own
+// radius (28px) at every point in the ellipse, including top/bottom — too
+// tight and a badge visibly sinks under the avatar instead of orbiting it.
 const PLANETS: Planet[] = [
-  { label: "Java", Icon: JavaIcon, radiusFrac: 0.32, period: 3.2, phaseDeg: 0, badgeColor: "#ff7b72", badgeSize: 16, iconSize: 8 },
-  { label: "SQL", Icon: SqlServerIcon, radiusFrac: 0.42, period: 4.1, phaseDeg: 55, badgeColor: "#f4d35e", badgeSize: 17, iconSize: 8 },
-  { label: ".NET Core", Icon: DotNetIcon, radiusFrac: 0.52, period: 5, phaseDeg: 110, badgeColor: "#c792ea", badgeSize: 18, iconSize: 9 },
-  { label: "C#", Icon: CSharpIcon, radiusFrac: 0.62, period: 5.9, phaseDeg: 165, badgeColor: "#7ee3ff", badgeSize: 19, iconSize: 9 },
-  { label: "Git", Icon: GitIcon, radiusFrac: 0.72, period: 6.8, phaseDeg: 220, badgeColor: "#ffb454", badgeSize: 20, iconSize: 9 },
-  { label: "Knockout.js", Icon: KnockoutIcon, radiusFrac: 0.82, period: 7.7, phaseDeg: 275, badgeColor: "#ff6ac1", badgeSize: 21, iconSize: 10 },
-  { label: "Azure AI", Icon: AzureIcon, radiusFrac: 0.92, period: 8.6, phaseDeg: 330, badgeColor: "#6cb6ff", badgeSize: 22, iconSize: 10 },
-  { label: "Angular 21", Icon: AngularIcon, radiusFrac: 1, period: 9.5, phaseDeg: 30, badgeColor: "#39ff8e", badgeSize: 23, iconSize: 11 },
+  { label: "Java", Icon: JavaIcon, radiusFrac: 0.55, period: 4.4, phaseDeg: 0, badgeColor: "#ff7b72", badgeSize: 17, iconSize: 8 },
+  { label: "SQL", Icon: SqlServerIcon, radiusFrac: 0.63, period: 5.3, phaseDeg: 45, badgeColor: "#f4d35e", badgeSize: 18, iconSize: 8 },
+  { label: ".NET Core", Icon: DotNetIcon, radiusFrac: 0.71, period: 6.1, phaseDeg: 90, badgeColor: "#c792ea", badgeSize: 19, iconSize: 9 },
+  { label: "C#", Icon: CSharpIcon, radiusFrac: 0.79, period: 6.9, phaseDeg: 135, badgeColor: "#7ee3ff", badgeSize: 20, iconSize: 9 },
+  { label: "Git", Icon: GitIcon, radiusFrac: 0.87, period: 7.7, phaseDeg: 180, badgeColor: "#ffb454", badgeSize: 21, iconSize: 9 },
+  { label: "Knockout.js", Icon: KnockoutIcon, radiusFrac: 0.94, period: 8.5, phaseDeg: 225, badgeColor: "#ff6ac1", badgeSize: 22, iconSize: 10 },
+  { label: "Azure AI", Icon: AzureIcon, radiusFrac: 1, period: 9.3, phaseDeg: 270, badgeColor: "#6cb6ff", badgeSize: 23, iconSize: 10 },
+  { label: "Angular 21", Icon: AngularIcon, radiusFrac: 1, period: 10.1, phaseDeg: 315, badgeColor: "#39ff8e", badgeSize: 24, iconSize: 11 },
 ];
 
-const ELLIPSE_SQUISH = 0.6; // radiusY = radiusX * this
+const ELLIPSE_SQUISH = 0.72; // radiusY = radiusX * this — less flattened than before, so orbits clear the avatar without needing a huge radius
 const MAX_SCALE = 1.2; // depth pop at the "closest to viewer" point of an orbit
-const SUN_SPEED_FRAC = 1 / 16; // fraction of the roam box's width crossed per second
+const SUN_SPEED_FRAC = 1 / 14; // fraction of the roam box's width crossed per second
 const TRAIL_COLOR = "139, 208, 255"; // cohesive blue-white, rgb triplet (reused with varying alpha)
 const SUN_TRAIL_COLOR = "255, 214, 138"; // warm gold, brighter/thicker — the sun's own path
 
@@ -153,9 +157,9 @@ export default function TechOrbit() {
       starCanvas!.style.height = `${H}px`;
       starCtx!.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const biggestBadgeHalf = (23 / 2) * MAX_SCALE;
+      const biggestBadgeHalf = (24 / 2) * MAX_SCALE;
       const safety = 4;
-      maxRadiusX = W * 0.17; // tight coil radius, fraction of card width
+      maxRadiusX = W * 0.32; // coil radius, fraction of card width — see PLANETS comment for why this floor exists
       const reserveX = maxRadiusX + biggestBadgeHalf + safety;
       const reserveY = maxRadiusX * ELLIPSE_SQUISH + biggestBadgeHalf + safety;
 
@@ -216,6 +220,17 @@ export default function TechOrbit() {
       ctx!.stroke();
     }
 
+    // "lighter" (additive) instead of the default "source-over" — with many
+    // overlapping semi-transparent strokes crossing the same small area
+    // over dozens of loops, source-over compositing drifts toward a muddy
+    // gray average. Additive blending makes overlaps brighten and saturate
+    // instead, closer to a glowing wire than flat paint.
+    function withAdditiveBlend(draw: () => void) {
+      ctx!.globalCompositeOperation = "lighter";
+      draw();
+      ctx!.globalCompositeOperation = "source-over";
+    }
+
     function step(dt: number, t: number) {
       // advance + bounce
       sunX += sunVX * dt;
@@ -237,7 +252,7 @@ export default function TechOrbit() {
 
       avatar!.style.transform = `translate(-50%, -50%) translate(${sunX - W / 2}px, ${sunY - H / 2}px)`;
 
-      strokeSegment(lastSunPos, { x: sunX, y: sunY }, SUN_TRAIL_COLOR, 0.85, 1.8);
+      withAdditiveBlend(() => strokeSegment(lastSunPos, { x: sunX, y: sunY }, SUN_TRAIL_COLOR, 0.6, 1.6));
       lastSunPos = { x: sunX, y: sunY };
 
       PLANETS.forEach((p, i) => {
@@ -260,7 +275,9 @@ export default function TechOrbit() {
           el.style.zIndex = String(z);
         }
 
-        strokeSegment(lastPlanetPos[i], { x: px, y: py }, TRAIL_COLOR, 0.5 + ((depth + 1) / 2) * 0.35, 1.1);
+        withAdditiveBlend(() =>
+          strokeSegment(lastPlanetPos[i], { x: px, y: py }, TRAIL_COLOR, 0.28 + ((depth + 1) / 2) * 0.22, 1.1)
+        );
         lastPlanetPos[i] = { x: px, y: py };
       });
     }
@@ -283,7 +300,7 @@ export default function TechOrbit() {
       // several seconds of coiling stay visible at once, not just the last
       // instant of motion.
       ctx!.globalCompositeOperation = "destination-out";
-      ctx!.fillStyle = "rgba(0, 0, 0, 0.006)";
+      ctx!.fillStyle = "rgba(0, 0, 0, 0.011)";
       ctx!.fillRect(0, 0, W, H);
       ctx!.globalCompositeOperation = "source-over";
 
