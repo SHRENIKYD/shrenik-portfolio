@@ -14,7 +14,7 @@ import Gutter from "@/components/Gutter";
 import Counter from "@/components/Counter";
 import CareerSparkline from "@/components/CareerSparkline";
 import SkillConstellation from "@/components/SkillConstellation";
-import AvatarReveal from "@/components/AvatarReveal";
+import IsometricDesk from "@/components/IsometricDesk";
 import NowFocus from "@/components/NowFocus";
 import TerminalStatusPanel from "@/components/TerminalStatusPanel";
 import CodeMinimap from "@/components/CodeMinimap";
@@ -270,9 +270,13 @@ export default function AboutTab() {
           animate="show"
           custom={1}
           variants={fadeUp}
-          className="flex items-start gap-4 sm:gap-5"
+          className="flex items-start gap-3 sm:gap-5"
         >
-          <AvatarReveal src={withBasePath(profile.avatar)} alt={profile.name} />
+          <IsometricDesk
+            variant="compact"
+            avatarSrc={withBasePath(profile.avatar)}
+            className="h-20 w-32 rounded-lg border border-[#1c2621] bg-[#0d1310] sm:h-24 sm:w-40"
+          />
 
           <div className="min-w-0">
             <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#e8efe9]">

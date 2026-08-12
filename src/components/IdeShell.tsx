@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Sidebar from "@/components/Sidebar";
-import TabBar from "@/components/TabBar";
+import CubeNav from "@/components/CubeNav";
 import StatusBar from "@/components/StatusBar";
 import CommandPalette from "@/components/CommandPalette";
 import AboutTab from "@/components/tabs/AboutTab";
@@ -59,12 +59,14 @@ export default function IdeShell() {
         <Sidebar active={active} onSelect={setActive} />
 
         <div className="flex flex-1 min-w-0 flex-col">
-          <TabBar active={active} onSelect={setActive} />
+          <CubeNav active={active} onSelect={setActive} />
 
           <div className="flex-1 min-h-0 overflow-y-auto">
             <AnimatePresence mode="wait">
               <motion.div
                 key={active}
+                id={`tabpanel-${active}`}
+                role="tabpanel"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
