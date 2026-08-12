@@ -10,11 +10,25 @@ import { TABS, langColor } from "@/data/tabs";
 // navigation works exactly like a standard tablist (WAI-ARIA APG "tabs",
 // automatic activation on arrow keys) — the 3D rotation is a visual layer
 // on top of that, not a replacement for it.
+//
+// A cube viewed dead-on just looks like a flat card — there's nothing to
+// read as "depth" without an angle or a visible edge. So the whole rig
+// sits under a permanent slight tilt (like the isometric desk), and the
+// front face gets a stacked-shadow "extrusion" (staircase box-shadows,
+// the classic CSS block-depth trick) so it reads as a solid tile with
+// thickness, not a rounded rectangle that happens to fade at the edges.
 
 const N = TABS.length; // 6 — one face per tab, a true cube
 const FACE_W = 168;
 const FACE_H = 56;
 const RADIUS = Math.round(FACE_W / 2 / Math.tan(Math.PI / N));
+const TILT_X = 22; // deg — permanent camera tilt so a static cube still reads as 3D
+// A face tilted about its own local X-axis and then pushed out by RADIUS
+// drifts vertically by roughly RADIUS*sin(TILT_X) — budget room for that
+// so the tilted card doesn't get clipped or spill into the chevrons.
+const DRIFT = Math.round(RADIUS * Math.sin((TILT_X * Math.PI) / 180));
+const EXTRUDE =
+  "2px 3px 0 0 #16261d, 4px 6px 0 0 #101c15, 6px 9px 0 0 #0a120e, 6px 9px 16px 2px rgba(0,0,0,0.5)";
 
 export default function CubeNav({
   active,
@@ -68,12 +82,14 @@ export default function CubeNav({
   const activeTab = TABS[activeIndex];
 
   return (
-    <div className="flex flex-col items-center gap-1.5 border-b border-[#1c2621] bg-[#0a0e0c] px-4 py-2.5">
-      <div
-        role="tablist"
-        aria-label="Sections"
-        className="flex items-center gap-3"
-      >
+    <div
+      className="flex flex-col items-center gap-1.5 border-b border-[#1c2621] px-4 py-3"
+      style={{
+        background:
+          "radial-gradient(ellipse 220px 70px at 50% 60%, rgba(57,255,142,0.06), transparent 70%), #0a0e0c",
+      }}
+    >
+      <div role="tablist" aria-label="Sections" className="flex items-center gap-3">
         <button
           type="button"
           onClick={() => goTo(activeIndex - 1)}
@@ -84,16 +100,20 @@ export default function CubeNav({
         </button>
 
         <div
-          className="relative shrink-0 max-sm:scale-[0.78]"
-          style={{ width: FACE_W, height: FACE_H, perspective: 700 }}
+          className="relative flex shrink-0 items-center justify-center overflow-hidden max-sm:scale-[0.78]"
+          style={{ width: FACE_W, height: FACE_H + DRIFT * 2, perspective: 560 }}
         >
           <div
             ref={sceneRef}
-            className="absolute inset-0"
+            className="relative shrink-0"
             style={{
+              width: FACE_W,
+              height: FACE_H,
               transformStyle: "preserve-3d",
               transform: `rotateY(${-activeIndex * (360 / N)}deg)`,
-              transition: reducedMotion ? "none" : "transform 420ms cubic-bezier(.2,.8,.2,1)",
+              transition: reducedMotion
+                ? "none"
+                : "transform 460ms cubic-bezier(.2,.8,.2,1)",
             }}
           >
             {TABS.map((tab, i) => {
@@ -110,24 +130,31 @@ export default function CubeNav({
                   tabIndex={isActive ? 0 : -1}
                   onClick={() => goTo(i)}
                   onKeyDown={(e) => onKeyDown(e, i)}
-                  className={`absolute inset-0 flex flex-col items-center justify-center gap-1.5 rounded-lg border font-mono text-[11px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#39ff8e] ${
+                  className={`absolute inset-0 flex flex-col items-center justify-center gap-1.5 rounded-md border font-mono text-[11px] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#39ff8e] ${
                     isActive
                       ? "border-[#39ff8e]/40 bg-[#0d1310] text-[#c9d1d9]"
-                      : "border-[#1c2621] bg-[#101713] text-[#63706a] hover:text-[#8b978f]"
+                      : "border-transparent bg-[#0a0e0c] text-[#3a4a41]"
                   }`}
                   style={{
-                    transform: `rotateY(${i * (360 / N)}deg) translateZ(${RADIUS}px)`,
+                    // rotateX (the permanent "viewed from slightly above"
+                    // tilt — a cube viewed dead-on has no depth cue at
+                    // all) is applied first, in the face's own local
+                    // frame, so it pitches the card in place rather than
+                    // swinging the whole hexagon through a big arc.
+                    transform: `rotateY(${i * (360 / N)}deg) translateZ(${RADIUS}px) rotateX(${TILT_X}deg)`,
                     backfaceVisibility: "hidden",
+                    boxShadow: isActive ? EXTRUDE : undefined,
                     // Only the front-facing tab should be able to catch a
                     // click/tap — the rest are pushed off in 3D space by
-                    // translateZ and can otherwise land visually on top of
-                    // (and steal pointer events from) neighboring controls.
+                    // translateZ and can otherwise land visually on top
+                    // of (and steal pointer events from) neighboring
+                    // controls.
                     pointerEvents: isActive ? "auto" : "none",
                   }}
                 >
                   <span
                     className="h-1.5 w-1.5 rounded-full"
-                    style={{ background: langColor[tab.lang] }}
+                    style={{ background: langColor[tab.lang], opacity: isActive ? 1 : 0.5 }}
                   />
                   <span className="max-w-[85%] truncate px-1">{tab.fileName}</span>
                 </button>
