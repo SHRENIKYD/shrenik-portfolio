@@ -1,147 +1,216 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
-// Entry gate for /beta, after activetheory.net's loader: a blob of ASCII
-// slashes with the load percentage burned into the middle, which resolves
-// into a circular hatched emblem with ">>>" — click (or wait a beat) to
-// enter. Pure DOM/text, no canvas. Skipped entirely for reduced-motion
-// users and for return visits within the same session.
+// Entry gate for /beta — the "Runaway terminal" concept, picked from the
+// Entry Sequences mockups. A terminal types code by itself, slowly at
+// first, then exponentially faster until the text is a blur; at 100%
+// every character collapses into a single point and bursts back out as
+// radial rays of type, and the site is revealed underneath.
+//
+// Canvas-driven. Shows once per session; skipped for reduced-motion;
+// click / tap / any key skips immediately.
 
-const ROWS = 13;
-const MAX_COLS = 40;
+const LOAD_S = 2.6;
+const IMPLODE_S = 0.34;
+const BURST_S = 1.35;
 
-function buildBlob(): string[] {
-  const rows: string[] = [];
-  for (let r = 0; r < ROWS; r++) {
-    // circle-ish envelope: row width follows sqrt(1 - (2r/N - 1)^2)
-    const t = (2 * r) / (ROWS - 1) - 1;
-    const width = Math.max(6, Math.round(Math.sqrt(Math.max(0, 1 - t * t)) * MAX_COLS));
-    let s = "";
-    for (let c = 0; c < width; c++) {
-      const roll = Math.random();
-      s += roll < 0.08 ? String((Math.random() * 10) | 0) : "/";
-    }
-    rows.push(s);
-  }
-  return rows;
-}
+const TOKENS = [
+  "const", "await", "=>", "{ }", "return", "if (", "for (", "async",
+  "0x1F", "!==", "push(", "map(", "sql", "net6.0", "ng build",
+  "dotnet run", "// ok", "[i]", "try {", "catch", "SELECT", "JOIN",
+  "public", "void", "Task<", "linq", "app.Run()", "az deploy",
+];
+const GLYPHS = "/01<>{};=+".split("");
+const MONO = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace';
 
 export default function BetaLoader() {
-  const [gone, setGone] = useState(true); // default hidden until we decide to show
-  const [phase, setPhase] = useState<"load" | "ready">("load");
-  const [pct, setPct] = useState(0);
-  const blob = useMemo(buildBlob, []);
+  const [gone, setGone] = useState(true); // hidden until mount decides
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const doneRef = useRef(false);
 
-  // decide on mount whether to show at all
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const seen = sessionStorage.getItem("beta-loader-seen");
     if (!reduce && !seen) setGone(false);
   }, []);
 
-  // fake-but-honest progress: eases toward 100 over ~1.6s
   useEffect(() => {
-    if (gone || phase !== "load") return;
-    const id = setInterval(() => {
-      setPct((p) => {
-        const next = p + (100 - p) * 0.08 + 0.9;
-        if (next >= 100) {
-          clearInterval(id);
-          setPhase("ready");
-          return 100;
+    if (gone) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let w = 0;
+    let h = 0;
+    const size = () => {
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    size();
+    window.addEventListener("resize", size);
+
+    const dismiss = () => {
+      if (doneRef.current) return;
+      doneRef.current = true;
+      sessionStorage.setItem("beta-loader-seen", "1");
+      setGone(true);
+    };
+    const onKey = () => dismiss();
+    window.addEventListener("keydown", onKey);
+
+    // release-phase ray directions, fixed per run
+    const rays = Array.from({ length: 30 }, (_, i) => ({
+      a: (i / 30) * Math.PI * 2 + 0.1,
+      sp: 0.6 + Math.random() * 0.8,
+      seed: Math.random(),
+    }));
+
+    const buf: string[] = [];
+    let chars = 0;
+    let raf = 0;
+    const t0 = performance.now();
+    let last = t0;
+    const easeOut = (x: number) => 1 - Math.pow(1 - x, 3);
+
+    const tick = (now: number) => {
+      const t = (now - t0) / 1000;
+      // real frame delta (clamped) — typing speed must not depend on the
+      // display's frame rate, only on wall-clock time
+      const dt = Math.min(0.08, (now - last) / 1000);
+      last = now;
+      const cx = w / 2;
+      const cy = h / 2;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = "#030507";
+      ctx.fillRect(0, 0, w, h);
+
+      if (t < LOAD_S) {
+        // ---- typing phase, exponential acceleration ----
+        const p = 1 - Math.pow(1 - t / LOAD_S, 2.2);
+        const rate = 14 * Math.exp(p * 4.2);
+        chars += rate * dt;
+        while (buf.join(" ").length < chars) {
+          buf.push(TOKENS[(Math.random() * TOKENS.length) | 0]);
+          if (buf.length > 400) buf.shift();
         }
-        return next;
-      });
-    }, 30);
-    return () => clearInterval(id);
-  }, [gone, phase]);
+        ctx.font = `12px ${MONO}`;
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+        const lineW = Math.min(w - 64, 640);
+        const x0 = (w - lineW) / 2;
+        const y0 = Math.max(48, h * 0.16);
+        const maxLines = Math.max(4, ((h - y0 - 140) / 18) | 0);
+        const lines: string[] = [];
+        let line = "";
+        for (let i = 0; i < buf.length; i++) {
+          if ((line + " " + buf[i]).length * 7.2 > lineW) {
+            lines.push(line);
+            line = buf[i];
+          } else {
+            line = line ? line + " " + buf[i] : buf[i];
+          }
+        }
+        lines.push(line);
+        const start = Math.max(0, lines.length - maxLines);
+        for (let l = start; l < lines.length; l++) {
+          const fade = 0.13 + ((l - start) / maxLines) * 0.38;
+          ctx.fillStyle = `rgba(127,163,176,${fade.toFixed(3)})`;
+          ctx.fillText(lines[l], x0, y0 + (l - start) * 18);
+        }
+        // block cursor
+        const cyy = y0 + Math.min(lines.length - 1 - start, maxLines - 1) * 18;
+        if (Math.floor(now / 300) % 2 === 0) {
+          ctx.fillStyle = "#39ff8e";
+          ctx.fillRect(x0 + ((lines[lines.length - 1].length * 7.2) % lineW) + 4, cyy, 7, 13);
+        }
+        ctx.font = `600 22px ${MONO}`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#9fc4d4";
+        ctx.fillText(`ln /${Math.min(99, Math.round(p * 100))}`, cx, h - 72);
+        ctx.font = `10px ${MONO}`;
+        ctx.fillStyle = "#556058";
+        ctx.fillText("click anywhere to skip", cx, h - 44);
+      } else {
+        const rt = t - LOAD_S;
+        if (rt < IMPLODE_S) {
+          // ---- implosion: everything collapses to a point ----
+          const impl = rt / IMPLODE_S;
+          const ir = (1 - impl) * 130;
+          ctx.strokeStyle = `rgba(57,255,142,${(0.65 * impl).toFixed(3)})`;
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(cx, cy, ir, 0, Math.PI * 2);
+          ctx.stroke();
+        } else if (rt < IMPLODE_S + BURST_S) {
+          // ---- burst: radial rays of type ----
+          const bt = rt - IMPLODE_S;
+          const burst = easeOut(Math.min(1, bt * 0.85));
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          for (let b = 0; b < rays.length; b++) {
+            const ray = rays[b];
+            const len = burst * Math.max(w, h) * 0.75 * ray.sp;
+            for (let seg = 0; seg < 8; seg++) {
+              const f = seg / 8;
+              const rr = 20 + f * len;
+              const al = Math.max(0, 0.7 - bt * 0.45) * (1 - f * 0.6);
+              if (al < 0.03) continue;
+              const colr =
+                ray.seed < 0.5 ? "127,163,176" : ray.seed < 0.85 ? "57,255,142" : "108,182,255";
+              ctx.font = `11px ${MONO}`;
+              ctx.fillStyle = `rgba(${colr},${al.toFixed(3)})`;
+              ctx.fillText(
+                GLYPHS[(b + seg) % GLYPHS.length],
+                cx + Math.cos(ray.a) * rr,
+                cy + Math.sin(ray.a) * rr
+              );
+            }
+          }
+          ctx.font = `500 20px ${MONO}`;
+          ctx.fillStyle = `rgba(232,239,233,${Math.max(0, 1 - bt * 0.9).toFixed(3)})`;
+          ctx.fillText(">>>", cx, cy);
+        } else {
+          dismiss();
+          return;
+        }
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
 
-  // auto-enter shortly after the emblem appears; click enters immediately
-  useEffect(() => {
-    if (gone || phase !== "ready") return;
-    const t = setTimeout(dismiss, 2200);
-    return () => clearTimeout(t);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", size);
+      window.removeEventListener("keydown", onKey);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gone, phase]);
+  }, [gone]);
 
-  function dismiss() {
+  const skip = () => {
     if (doneRef.current) return;
     doneRef.current = true;
     sessionStorage.setItem("beta-loader-seen", "1");
     setGone(true);
-  }
-
-  const shown = Math.min(99, Math.round(pct));
+  };
 
   return (
     <AnimatePresence>
       {!gone && (
         <motion.div
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.7, ease: "easeInOut" }}
-          onClick={phase === "ready" ? dismiss : undefined}
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-[#030507]"
-          style={{ cursor: phase === "ready" ? "pointer" : "default" }}
+          transition={{ duration: 0.55, ease: "easeInOut" }}
+          onClick={skip}
+          className="fixed inset-0 z-[60] cursor-pointer bg-[#030507]"
         >
-          <AnimatePresence mode="wait">
-            {phase === "load" ? (
-              <motion.div
-                key="blob"
-                exit={{ opacity: 0, scale: 0.96 }}
-                transition={{ duration: 0.35 }}
-                className="relative select-none font-mono text-[11px] leading-[1.35] tracking-[0.08em] text-[#5f7d8c]/60"
-              >
-                {blob.map((row, i) => (
-                  <div key={i} className="text-center whitespace-pre">
-                    {row}
-                  </div>
-                ))}
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                  <span className="bg-[#030507] px-2 font-mono text-xl tracking-[0.15em] text-[#9fc4d4]">
-                    /{shown}
-                  </span>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.button
-                key="emblem"
-                type="button"
-                aria-label="Enter site"
-                onClick={dismiss}
-                initial={{ opacity: 0, scale: 0.85 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                className="relative flex h-56 w-56 items-center justify-center rounded-full sm:h-64 sm:w-64"
-                style={{
-                  border: "1px solid rgba(120,170,190,0.55)",
-                  boxShadow:
-                    "0 0 40px rgba(90,150,180,0.25), inset 0 0 60px rgba(60,110,140,0.12)",
-                }}
-              >
-                {/* hatched interior */}
-                <span
-                  aria-hidden
-                  className="absolute inset-4 rounded-full opacity-60"
-                  style={{
-                    backgroundImage:
-                      "repeating-linear-gradient(115deg, rgba(110,160,180,0.35) 0 1px, transparent 1px 8px)",
-                    maskImage: "radial-gradient(circle, black 65%, transparent 72%)",
-                    WebkitMaskImage: "radial-gradient(circle, black 65%, transparent 72%)",
-                  }}
-                />
-                <motion.span
-                  animate={{ x: [0, 6, 0] }}
-                  transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-                  className="relative font-mono text-2xl tracking-[0.3em] text-[#bfe3ef]"
-                >
-                  {">>>"}
-                </motion.span>
-              </motion.button>
-            )}
-          </AnimatePresence>
+          <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
         </motion.div>
       )}
     </AnimatePresence>
