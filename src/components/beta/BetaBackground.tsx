@@ -13,7 +13,7 @@ import * as THREE from "three";
 // drops particle count on coarse-pointer devices, and renders a single
 // static frame under prefers-reduced-motion.
 
-const COLORS = [0x39ff8e, 0x6cb6ff, 0x9fffce, 0xffffff];
+const COLORS = [0x39ff8e, 0x6cb6ff, 0x9fffce, 0xa07bff, 0xffffff];
 
 function makeSpriteTexture(): THREE.Texture {
   const size = 64;
@@ -126,6 +126,67 @@ export default function BetaBackground() {
     const bokeh = new THREE.Points(bGeo, bMat);
     scene.add(bokeh);
 
+    // central "spine" — a double helix of brighter points with faint
+    // cross-rungs, running the full depth of the descent. An abstract
+    // nod to the vertebral column on activetheory.net's work page.
+    const spine = new THREE.Group();
+    const SEG = 240;
+    const HELIX_R = 2.3;
+    const TWIST = 0.42;
+    const strandPos = new Float32Array(SEG * 2 * 3);
+    const strandCol = new Float32Array(SEG * 2 * 3);
+    const rungVerts: number[] = [];
+    const spineTints = [0x39ff8e, 0x6cb6ff, 0xa07bff];
+    for (let i = 0; i < SEG; i++) {
+      const y = 12 - (i / (SEG - 1)) * (DEPTH_SPAN + 10);
+      const a = y * TWIST;
+      for (let s = 0; s < 2; s++) {
+        const phase = a + s * Math.PI;
+        const idx = (i * 2 + s) * 3;
+        strandPos[idx] = Math.sin(phase) * HELIX_R;
+        strandPos[idx + 1] = y;
+        strandPos[idx + 2] = Math.cos(phase) * HELIX_R;
+        color.setHex(spineTints[(i + s) % spineTints.length]);
+        const glow = 0.5 + 0.5 * Math.abs(Math.sin(a * 0.5));
+        strandCol[idx] = color.r * glow;
+        strandCol[idx + 1] = color.g * glow;
+        strandCol[idx + 2] = color.b * glow;
+      }
+      if (i % 5 === 0) {
+        rungVerts.push(
+          Math.sin(a) * HELIX_R, y, Math.cos(a) * HELIX_R,
+          Math.sin(a + Math.PI) * HELIX_R, y, Math.cos(a + Math.PI) * HELIX_R
+        );
+      }
+    }
+    const strandGeo = new THREE.BufferGeometry();
+    strandGeo.setAttribute("position", new THREE.BufferAttribute(strandPos, 3));
+    strandGeo.setAttribute("color", new THREE.BufferAttribute(strandCol, 3));
+    const strandMat = new THREE.PointsMaterial({
+      size: 0.34,
+      map: mat.map,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.9,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      sizeAttenuation: true,
+    });
+    spine.add(new THREE.Points(strandGeo, strandMat));
+
+    const rungGeo = new THREE.BufferGeometry();
+    rungGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(rungVerts), 3));
+    const rungMat = new THREE.LineBasicMaterial({
+      color: 0x6cb6ff,
+      transparent: true,
+      opacity: 0.1,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    spine.add(new THREE.LineSegments(rungGeo, rungMat));
+    spine.position.z = -2;
+    scene.add(spine);
+
     // pointer parallax + scroll-driven descent
     const target = { x: 0, y: 0 };
     const onPointer = (e: MouseEvent) => {
@@ -192,6 +253,7 @@ export default function BetaBackground() {
       camera.rotation.z += (target.x * -0.015 - camera.rotation.z) * 0.02;
 
       bokeh.rotation.y = t * 0.008;
+      spine.rotation.y = t * 0.06;
 
       renderer.render(scene, camera);
       if (running) rafId = requestAnimationFrame(tick);
@@ -212,9 +274,13 @@ export default function BetaBackground() {
       document.removeEventListener("visibilitychange", onVisibility);
       geo.dispose();
       bGeo.dispose();
+      strandGeo.dispose();
+      rungGeo.dispose();
       mat.map?.dispose();
       mat.dispose();
       bMat.dispose();
+      strandMat.dispose();
+      rungMat.dispose();
       renderer.dispose();
       mount.removeChild(renderer.domElement);
     };
@@ -230,7 +296,8 @@ export default function BetaBackground() {
         style={{
           background:
             "radial-gradient(ellipse 70% 55% at 18% -12%, rgba(140,190,220,0.16), transparent 60%)," +
-            "radial-gradient(ellipse 90% 60% at 50% 115%, rgba(3,5,6,0.85), transparent 55%)",
+            "radial-gradient(ellipse 75% 50% at 15% 110%, rgba(110,70,190,0.13), transparent 55%)," +
+            "radial-gradient(ellipse 90% 60% at 50% 115%, rgba(3,5,6,0.8), transparent 55%)",
         }}
       />
     </div>

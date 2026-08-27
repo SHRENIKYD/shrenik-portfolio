@@ -42,18 +42,46 @@ export default function BetaNav() {
       <div className="fixed inset-x-0 top-0 z-40 flex items-center justify-between px-6 py-5 sm:px-10 sm:py-7">
         <Link
           href="/"
-          className="font-mono text-sm font-medium tracking-[0.2em] text-[#e8efe9] transition-colors hover:text-[#39ff8e]"
+          className="hidden font-mono text-sm font-medium tracking-[0.2em] text-[#e8efe9] transition-colors hover:text-[#39ff8e] sm:block"
         >
           SHRENIK.YD
         </Link>
+
+        {/* centered pill nav, after activetheory.net */}
+        <div
+          className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-4 rounded-full border px-6 py-2.5 backdrop-blur-md sm:gap-6 sm:px-8 sm:py-3"
+          style={{
+            borderColor: "rgba(140,190,210,0.28)",
+            background: "rgba(5,10,14,0.55)",
+            boxShadow:
+              "0 0 24px rgba(90,150,180,0.18), inset 0 0 18px rgba(60,110,140,0.08)",
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => goTo("work")}
+            className="font-mono text-xs uppercase tracking-[0.25em] text-[#c9d1d9] transition-colors hover:text-[#39ff8e]"
+          >
+            Work
+          </button>
+          <span aria-hidden className="h-px w-8 bg-[#3a4a55] sm:w-12" />
+          <button
+            type="button"
+            onClick={() => goTo("contact")}
+            className="font-mono text-xs uppercase tracking-[0.25em] text-[#c9d1d9] transition-colors hover:text-[#39ff8e]"
+          >
+            Contact
+          </button>
+        </div>
+
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
           aria-expanded={open}
           aria-label={open ? "Close menu" : "Open menu"}
-          className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-[#c9d1d9] transition-colors hover:text-[#39ff8e]"
+          className="ml-auto flex items-center gap-2 font-mono text-xs uppercase tracking-[0.2em] text-[#c9d1d9] transition-colors hover:text-[#39ff8e]"
         >
-          {open ? "Close" : "Menu"}
+          <span className="hidden sm:inline">{open ? "Close" : "Menu"}</span>
           {open ? <X size={16} /> : <Menu size={16} />}
         </button>
       </div>
