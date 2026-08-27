@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import BetaBackground from "@/components/beta/BetaBackground";
 import ScrollProgress from "@/components/beta/ScrollProgress";
 import BetaNav from "@/components/beta/BetaNav";
 import BetaHero from "@/components/beta/BetaHero";
@@ -19,9 +20,12 @@ export const metadata: Metadata = {
 export default function BetaPage() {
   return (
     <div className="relative">
+      {/* WebGL underwater scene — mounted after the global grid canvas in
+          the DOM, so it paints over it; page content sits above both */}
+      <BetaBackground />
       <ScrollProgress />
       <BetaNav />
-      <main>
+      <main className="relative z-10">
         <BetaHero />
         <BetaWork />
         <BetaCraft />
