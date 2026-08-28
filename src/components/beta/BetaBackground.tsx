@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 // Deep-water ambient WebGL background for /beta — a slow drift of glowing
@@ -49,7 +49,6 @@ function supportsWebGL(): boolean {
 
 export default function BetaBackground() {
   const mountRef = useRef<HTMLDivElement>(null);
-  const [webglDown, setWebglDown] = useState(false);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -59,10 +58,8 @@ export default function BetaBackground() {
     const coarse = window.matchMedia("(pointer: coarse)").matches;
     const COUNT = coarse ? 500 : 1100;
 
-    if (!supportsWebGL()) {
-      setWebglDown(true);
-      return;
-    }
+    // No context: leave the mount empty and let the gradient underneath show.
+    if (!supportsWebGL()) return;
 
     // The probe can pass and creation still fail — a blocklisted driver, an
     // exhausted context pool. Never let that escape into the render tree.
@@ -70,7 +67,6 @@ export default function BetaBackground() {
     try {
       renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
     } catch {
-      setWebglDown(true);
       return;
     }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -78,10 +74,11 @@ export default function BetaBackground() {
     renderer.setClearColor(0x05080a, 1);
     mount.appendChild(renderer.domElement);
 
-    // a context can be lost at runtime too (backgrounded GPU, driver reset)
+    // A context can also be lost at runtime (driver reset, GPU reclaimed).
+    // Drop the dead canvas so the gradient beneath shows through again.
     const onContextLost = (e: Event) => {
       e.preventDefault();
-      setWebglDown(true);
+      renderer.domElement.remove();
     };
     renderer.domElement.addEventListener("webglcontextlost", onContextLost);
 
@@ -353,26 +350,26 @@ export default function BetaBackground() {
       bMat.dispose();
       renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
       renderer.dispose();
-      mount.removeChild(renderer.domElement);
+      renderer.domElement.remove(); // no-op if a lost context already removed it
     };
   }, []);
 
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
+      {/* Always painted, and hidden by the opaque WebGL canvas whenever there
+          is one. With no context — or if one is lost at runtime — this is what
+          remains, so the page keeps its depth instead of going flat black.
+          Rendering it unconditionally avoids a state update purely to
+          describe something React does not control. */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 120% 80% at 50% -20%, #0b1620 0%, #070d12 45%, #05080a 100%)," +
+            "radial-gradient(ellipse 60% 40% at 80% 30%, rgba(60,110,140,0.10), transparent 60%)",
+        }}
+      />
       <div ref={mountRef} className="absolute inset-0" />
-      {/* Stands in for the WebGL scene when there is no context. The light
-          shafts below still paint over it, so the page keeps its depth
-          instead of collapsing to flat black. */}
-      {webglDown && (
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(ellipse 120% 80% at 50% -20%, #0b1620 0%, #070d12 45%, #05080a 100%)," +
-              "radial-gradient(ellipse 60% 40% at 80% 30%, rgba(60,110,140,0.10), transparent 60%)",
-          }}
-        />
-      )}
       {/* volumetric light shaft from the top-left + depth vignette,
           done in cheap CSS on top of the WebGL layer */}
       <div
