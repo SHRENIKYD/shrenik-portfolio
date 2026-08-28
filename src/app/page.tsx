@@ -1,16 +1,7 @@
-"use client";
+import BetaSite from "@/components/beta/BetaSite";
 
-import { useState } from "react";
-import BootSequence from "@/components/BootSequence";
-import IdeShell from "@/components/IdeShell";
-
+// The cinematic experience IS the portfolio now. The original IDE-themed
+// version lives on at /ide, linked from the menu.
 export default function Home() {
-  const [booted, setBooted] = useState(false);
-
-  return (
-    <>
-      {!booted && <BootSequence onDone={() => setBooted(true)} />}
-      {booted && <IdeShell />}
-    </>
-  );
+  return <BetaSite />;
 }

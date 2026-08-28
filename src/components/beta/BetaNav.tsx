@@ -144,8 +144,8 @@ export default function BetaNav() {
               >
                 LinkedIn
               </a>
-              <Link href="/" className="hover:text-[#39ff8e]">
-                ← back to the IDE version
+              <Link href="/ide" className="hover:text-[#39ff8e]">
+                ← the IDE version
               </Link>
             </motion.div>
           </motion.div>
