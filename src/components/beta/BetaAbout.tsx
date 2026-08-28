@@ -1,8 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { GraduationCap } from "lucide-react";
-import { profile, education, traits, impactStats } from "@/data/resume";
+import { profile, traits, impactStats } from "@/data/resume";
 
 export default function BetaAbout() {
   return (
@@ -15,7 +14,7 @@ export default function BetaAbout() {
         className="mb-16 sm:mb-20"
       >
         <h2 className="font-mono text-xs uppercase tracking-[0.3em] text-[#556058]">
-          04 — About
+          03 — About
         </h2>
       </motion.div>
 
@@ -62,17 +61,6 @@ export default function BetaAbout() {
                 </li>
               ))}
             </ul>
-          </div>
-
-          <div>
-            <div className="mb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.25em] text-[#556058]">
-              <GraduationCap size={12} />
-              Education
-            </div>
-            <div className="text-sm text-[#c9d1d9]">{education.school}</div>
-            <div className="mt-1 text-xs text-[#6b7a72]">
-              {education.degree} · CGPA {education.cgpa} · {education.period}
-            </div>
           </div>
         </motion.div>
       </div>
