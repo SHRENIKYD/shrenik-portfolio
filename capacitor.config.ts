@@ -39,7 +39,10 @@ const config: CapacitorConfig = {
     StatusBar: {
       style: "DARK", // light glyphs on our dark ground
       backgroundColor: "#05080a",
-      overlaysWebView: true, // the site already draws edge to edge
+      // The webview must NOT run under the status bar: the page scrolls, so
+      // whatever is passing behind the clock at any moment collides with it.
+      // The bar gets its own solid strip in the site's ground colour instead.
+      overlaysWebView: false,
     },
   },
 };

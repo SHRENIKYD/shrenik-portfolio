@@ -49,6 +49,17 @@ export default function BetaNav() {
         className="fixed inset-x-0 top-0 z-40 flex items-center justify-between px-6 py-5 sm:px-10 sm:py-7"
         style={{ paddingTop: "calc(env(safe-area-inset-top) + 1.25rem)" }}
       >
+        {/* content scrolls beneath the nav; without this it collides with
+            the pill instead of fading away under it */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 -z-10"
+          style={{
+            height: "calc(env(safe-area-inset-top) + 7.5rem)",
+            background:
+              "linear-gradient(to bottom, #05080a 0%, rgba(5,8,10,0.92) 38%, rgba(5,8,10,0) 100%)",
+          }}
+        />
         <Link
           href="/"
           className="hidden font-mono text-sm font-medium tracking-[0.2em] text-[#e8efe9] transition-colors hover:text-[#39ff8e] sm:block"
