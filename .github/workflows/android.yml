@@ -1,0 +1,71 @@
+name: Build Android APK
+
+# Produces an installable APK without anyone needing Android Studio locally:
+# GitHub's Linux runners ship the Android SDK and build tools already.
+#
+# Run it from the Actions tab → "Build Android APK" → Run workflow, then
+# download the APK from the run's Artifacts section. Manual only, so it does
+# not run on every push to the site.
+on:
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: "Build variant"
+        type: choice
+        default: debug
+        options: [debug, release]
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # Capacitor's Android project targets JDK 21
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: npm ci
+
+      # NOTE: deliberately NOT the Pages build. That one prefixes every asset
+      # with /shrenik-portfolio, a path that does not exist inside the app's
+      # webview, and would ship a blank screen. app:build clears the basePath.
+      - name: Build web assets for the app
+        run: npm run app:build
+
+      - name: Copy web assets into the Android project
+        run: npx cap sync android
+
+      - name: Assemble ${{ inputs.variant }} APK
+        working-directory: android
+        run: ./gradlew assemble${{ inputs.variant == 'release' && 'Release' || 'Debug' }} --no-daemon
+
+      # A release APK is unsigned here — signing needs your own upload key,
+      # which should not live in the repo. The debug APK is signed with the
+      # standard debug key and installs on any device with unknown sources
+      # enabled.
+      - name: Collect the APK
+        run: |
+          find android/app/build/outputs/apk -name '*.apk' -print
+          mkdir -p dist
+          find android/app/build/outputs/apk -name '*.apk' -exec cp {} dist/ \;
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: shrenik-yd-${{ inputs.variant }}-apk
+          path: dist/*.apk
+          if-no-files-found: error
+          retention-days: 30
