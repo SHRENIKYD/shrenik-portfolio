@@ -8,9 +8,10 @@ import { profile } from "@/data/resume";
 
 const LINKS = [
   { id: "work", label: "Work", n: "01" },
-  { id: "craft", label: "Craft", n: "02" },
-  { id: "about", label: "About", n: "03" },
-  { id: "contact", label: "Contact", n: "04" },
+  { id: "experience", label: "Experience", n: "02" },
+  { id: "craft", label: "Craft", n: "03" },
+  { id: "about", label: "About", n: "04" },
+  { id: "contact", label: "Contact", n: "05" },
 ];
 
 export default function BetaNav() {

@@ -11,6 +11,7 @@ import { withBasePath } from "@/lib/basePath";
 
 const LINKS: { label: string; href: string }[] = [
   { label: "FULL-STACK WORK", href: "#work" },
+  { label: "THE JOB HISTORY", href: "#experience" },
   { label: "SKILLS / TOOLING", href: "#craft" },
   { label: "THE PERSON BEHIND IT", href: "#about" },
   { label: "A RÉSUMÉ", href: "resume" },

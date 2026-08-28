@@ -6,6 +6,7 @@ import BetaNav from "@/components/beta/BetaNav";
 import BetaWhatFor from "@/components/beta/BetaWhatFor";
 import BetaHero from "@/components/beta/BetaHero";
 import BetaWork from "@/components/beta/BetaWork";
+import BetaExperience from "@/components/beta/BetaExperience";
 import BetaCraft from "@/components/beta/BetaCraft";
 import BetaAbout from "@/components/beta/BetaAbout";
 import BetaContact from "@/components/beta/BetaContact";
@@ -31,6 +32,7 @@ export default function BetaPage() {
       <main className="relative z-10">
         <BetaHero />
         <BetaWork />
+        <BetaExperience />
         <BetaWhatFor />
         <BetaCraft />
         <BetaAbout />

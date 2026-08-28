@@ -168,7 +168,7 @@ export default function BetaCraft() {
         className="mb-10 flex items-end justify-between px-6 sm:mb-14 sm:px-10"
       >
         <h2 className="font-mono text-xs uppercase tracking-[0.3em] text-[#556058]">
-          02 — Craft
+          03 — Craft
         </h2>
         <span className="font-mono text-xs text-[#556058]">
           {ALL.length} tools · flying past
