@@ -1,6 +1,6 @@
 {
   "name": "resume-site",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -8,9 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "app:build": "NEXT_PUBLIC_BASE_PATH= next build",
-    "app:sync": "npm run app:build && cap sync",
+    "app:sync": "npm run version:sync && npm run app:build && cap sync",
     "app:android": "npm run app:sync && cap open android",
-    "app:ios": "npm run app:sync && cap open ios"
+    "app:ios": "npm run app:sync && cap open ios",
+    "version:sync": "node scripts/sync-version.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.5.0",

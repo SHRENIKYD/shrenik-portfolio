@@ -11,10 +11,11 @@
  *   build assets — cache first. Everything under /_next/static/ is hashed and
  *                  therefore immutable, so a hit is always correct.
  *
- * Bump VERSION to evict every old cache on the next activate.
+ * VERSION is written from package.json by scripts/sync-version.mjs — do not
+ * edit it here. Releasing a new version evicts every older cache on activate.
  */
 
-const VERSION = "v1";
+const VERSION = "v1.0.0";
 const CACHE = `shrenik-portfolio-${VERSION}`;
 
 // "/" locally, "/shrenik-portfolio/" on GitHub Pages — derived rather than

@@ -16,7 +16,7 @@ on:
         options: [debug, release]
 
 permissions:
-  contents: read
+  contents: write  # needed to publish the APK as a release asset
 
 jobs:
   apk:
@@ -60,10 +60,15 @@ jobs:
       # standard debug key and installs on any device with unknown sources
       # enabled.
       - name: Collect the APK
+        id: collect
         run: |
-          find android/app/build/outputs/apk -name '*.apk' -print
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           mkdir -p dist
-          find android/app/build/outputs/apk -name '*.apk' -exec cp {} dist/ \;
+          APK=$(find android/app/build/outputs/apk -name '*.apk' | head -1)
+          echo "built: $APK"
+          cp "$APK" "dist/shrenik-yd-$VERSION-${{ inputs.variant }}.apk"
+          ls -la dist/
 
       - uses: actions/upload-artifact@v4
         with:
@@ -71,3 +76,22 @@ jobs:
           path: dist/*.apk
           if-no-files-found: error
           retention-days: 30
+
+      # Artifacts require a signed-in GitHub account and arrive as a zip.
+      # A release asset is a plain public link that works on a phone, which
+      # is how anyone actually installs this.
+      - name: Publish as a release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.collect.outputs.version }}
+          name: v${{ steps.collect.outputs.version }}
+          body: |
+            Android app for the portfolio, built from `${{ github.sha }}`.
+
+            Download the `.apk` below on your phone and open it. Android will
+            ask you to allow installs from unknown sources, because this is
+            signed with the standard debug key rather than a Play Store one.
+
+            The web version lives at https://shrenikyd.github.io/shrenik-portfolio/
+          files: dist/*.apk
+          fail_on_unmatched_files: true

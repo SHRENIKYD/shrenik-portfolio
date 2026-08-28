@@ -1,4 +1,9 @@
 import type { NextConfig } from "next";
+import { readFileSync } from "node:fs";
+
+// The version shown in the UI comes from package.json, the same field the
+// Android and iOS projects are synced from, so every surface agrees.
+const { version } = JSON.parse(readFileSync("./package.json", "utf8"));
 
 // Set NEXT_PUBLIC_BASE_PATH to "/<repo-name>" when deploying to
 // https://<username>.github.io/<repo-name>/ (project page).
@@ -15,6 +20,7 @@ const nextConfig: NextConfig = {
   },
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,
+    NEXT_PUBLIC_APP_VERSION: version,
   },
 };
 

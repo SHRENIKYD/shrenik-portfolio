@@ -66,12 +66,38 @@ you share directly are fine. If you do want it in the App Store, it needs
 something a browser cannot do — offline-first content, share extensions,
 notifications — argued clearly in the review notes.
 
+## Versioning
+
+`package.json` is the single source of truth. `npm run version:sync` writes
+that version into the Android manifest, the Xcode project and the service
+worker cache name, and the site reads it for the version shown in the menu —
+so every surface always agrees. `npm run app:sync` runs it for you.
+
+Android's `versionCode` must be an increasing integer and can never go
+backwards for a package, so it is packed from the semver:
+`major * 10000 + minor * 100 + patch` (1.0.0 → 10000). The same number
+becomes iOS's `CURRENT_PROJECT_VERSION`.
+
+To release: edit `version` in `package.json`, run `npm run version:sync`,
+commit, then run the **Build Android APK** workflow. It tags the release and
+attaches the APK automatically.
+
+## Getting the APK without building anything
+
+Actions tab → **Build Android APK** → Run workflow. When it finishes, the
+APK is attached to a GitHub Release tagged with the version, at
+<https://github.com/SHRENIKYD/shrenik-portfolio/releases> — a plain public
+link that works on a phone. (The run also uploads a build artifact, but
+artifacts need a signed-in GitHub account and download as a zip, so the
+release asset is the one to share.)
+
 ## What the app is configured with
 
 | | |
 |---|---|
 | App ID | `in.shrenikyd.portfolio` |
 | Display name | `Shrenik.YD` |
+| Version | from `package.json` via `npm run version:sync` |
 | Icon / splash source | `assets/icon.png`, `assets/splash.png` |
 | Web assets | `out/`, copied into each platform on sync |
 

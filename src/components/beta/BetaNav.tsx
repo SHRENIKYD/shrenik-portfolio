@@ -144,6 +144,8 @@ export default function BetaNav() {
               >
                 LinkedIn
               </a>
+              {/* same version the Android and iOS builds carry */}
+              <span className="text-[#3a4a41]">v{process.env.NEXT_PUBLIC_APP_VERSION}</span>
             </motion.div>
           </motion.div>
         )}
