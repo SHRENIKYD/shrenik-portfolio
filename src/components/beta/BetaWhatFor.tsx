@@ -15,11 +15,15 @@ const LINKS: { label: string; href: string }[] = [
   { label: "SKILLS / TOOLING", href: "#craft" },
   { label: "THE PERSON BEHIND IT", href: "#about" },
   { label: "A RÉSUMÉ", href: "resume" },
-  { label: "A CONVERSATION", href: "#contact" },
+  { label: "A CONVERSATION", href: "contact" },
 ];
 
 export default function BetaWhatFor() {
   const goTo = (href: string) => {
+    if (href === "contact") {
+      window.dispatchEvent(new Event("open-contact"));
+      return;
+    }
     document.querySelector(href)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 

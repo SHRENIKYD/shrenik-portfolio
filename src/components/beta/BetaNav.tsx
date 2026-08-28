@@ -34,6 +34,11 @@ export default function BetaNav() {
 
   const goTo = (id: string) => {
     setOpen(false);
+    if (id === "contact") {
+      // the contact "section" is a full-screen takeover, not an anchor
+      window.dispatchEvent(new Event("open-contact"));
+      return;
+    }
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 

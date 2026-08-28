@@ -8,7 +8,7 @@ import BetaHero from "@/components/beta/BetaHero";
 import BetaJourney from "@/components/beta/BetaJourney";
 import BetaCraft from "@/components/beta/BetaCraft";
 import BetaAbout from "@/components/beta/BetaAbout";
-import BetaContact from "@/components/beta/BetaContact";
+import BetaContactOverlay from "@/components/beta/BetaContactOverlay";
 
 export const metadata: Metadata = {
   title: "Shrenik YD — Beta",
@@ -34,8 +34,8 @@ export default function BetaPage() {
         <BetaWhatFor />
         <BetaCraft />
         <BetaAbout />
-        <BetaContact />
       </main>
+      <BetaContactOverlay />
     </div>
   );
 }
