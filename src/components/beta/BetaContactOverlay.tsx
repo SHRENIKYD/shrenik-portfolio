@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { profile } from "@/data/resume";
 import { withBasePath } from "@/lib/basePath";
 import { contact as sfx } from "@/lib/sound";
+import { scrollToId } from "@/components/beta/SmoothScroll";
 
 // Full-screen contact takeover — the "Neon ignition" concept picked from
 // the Hailing Frequencies mockups. Opened from anywhere via the
@@ -212,7 +213,7 @@ export default function BetaContactOverlay() {
   const goWork = () => {
     setOpen(false);
     setTimeout(() => {
-      document.getElementById("work")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      scrollToId("work");
     }, 60);
   };
 
@@ -234,8 +235,9 @@ export default function BetaContactOverlay() {
 
           {/* pill: WORK —— CLOSE-X */}
           <div
-            className="absolute left-1/2 top-6 z-10 flex -translate-x-1/2 items-center gap-4 rounded-full border px-6 py-2.5 backdrop-blur-md sm:gap-6 sm:px-8 sm:py-3"
+            className="absolute left-1/2 z-10 flex -translate-x-1/2 items-center gap-4 rounded-full border px-6 py-2.5 backdrop-blur-md sm:gap-6 sm:px-8 sm:py-3"
             style={{
+              top: "calc(env(safe-area-inset-top) + 1.5rem)",
               borderColor: "rgba(140,190,210,0.28)",
               background: "rgba(5,10,14,0.55)",
               boxShadow: "0 0 24px rgba(90,150,180,0.18)",

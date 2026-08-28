@@ -89,6 +89,7 @@ export default function BetaHero() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 1.3 }}
         className="absolute bottom-8 left-6 flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.25em] text-[#556058] sm:bottom-10 sm:left-10"
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 2rem)" }}
       >
         <ArrowDown size={14} className="animate-bounce" />
         scroll

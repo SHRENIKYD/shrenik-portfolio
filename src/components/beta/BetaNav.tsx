@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { profile } from "@/data/resume";
+import { scrollToId } from "@/components/beta/SmoothScroll";
 
 const LINKS = [
   { id: "experience", label: "Experience", n: "01" },
@@ -39,12 +40,15 @@ export default function BetaNav() {
       window.dispatchEvent(new Event("open-contact"));
       return;
     }
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    scrollToId(id);
   };
 
   return (
     <>
-      <div className="fixed inset-x-0 top-0 z-40 flex items-center justify-between px-6 py-5 sm:px-10 sm:py-7">
+      <div
+        className="fixed inset-x-0 top-0 z-40 flex items-center justify-between px-6 py-5 sm:px-10 sm:py-7"
+        style={{ paddingTop: "calc(env(safe-area-inset-top) + 1.25rem)" }}
+      >
         <Link
           href="/"
           className="hidden font-mono text-sm font-medium tracking-[0.2em] text-[#e8efe9] transition-colors hover:text-[#39ff8e] sm:block"

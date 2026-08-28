@@ -19,6 +19,32 @@ import { useEffect, useRef, type ReactNode } from "react";
 //
 // Reduced-motion falls back to ordinary native scrolling, untouched.
 
+// While the content is pinned, an element's viewport rect no longer moves
+// with document scroll, so the browser's own scrollIntoView computes a
+// scroll of zero and every anchor link silently does nothing. Anchor
+// navigation therefore has to go through scrollToId below, which reads the
+// live eased position to work out where the element actually sits.
+let easedPosition: (() => number) | null = null;
+
+/**
+ * Scroll to an element by id, correctly, whether or not eased scrolling is
+ * active. Use this instead of `scrollIntoView` anywhere inside the pinned
+ * content.
+ */
+export function scrollToId(id: string): void {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (!easedPosition) {
+    // reduced-motion: ordinary document scrolling, so the native call is right
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+  // Jump the scroll position instantly and let the easing do the travelling —
+  // native smooth scrolling on top of the eased transform would compound into
+  // a sluggish double animation.
+  window.scrollTo({ top: el.getBoundingClientRect().top + easedPosition(), behavior: "auto" });
+}
+
 const EASE = 0.085; // approach rate per 60Hz frame — lower is heavier
 const SETTLE = 0.08; // px below which we snap, so text stops on a pixel
 const MAX_DT = 0.1; // cap after a background tab, so it catches up rather than crawls
@@ -50,6 +76,7 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
     window.addEventListener("resize", setHeight);
 
     let current = window.scrollY;
+    easedPosition = () => current;
     let raf = 0;
     let last = performance.now();
     const loop = (now: number) => {
@@ -70,6 +97,7 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
     raf = requestAnimationFrame(loop);
 
     return () => {
+      easedPosition = null;
       cancelAnimationFrame(raf);
       ro.disconnect();
       window.removeEventListener("resize", setHeight);

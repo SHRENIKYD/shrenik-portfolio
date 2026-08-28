@@ -14,8 +14,8 @@ export default function ScrollProgress() {
 
   return (
     <motion.div
-      style={{ scaleX }}
-      className="fixed left-0 right-0 top-0 z-50 h-[2px] origin-left bg-[#39ff8e]"
+      style={{ scaleX, top: "env(safe-area-inset-top)" }}
+      className="fixed left-0 right-0 z-50 h-[2px] origin-left bg-[#39ff8e]"
     />
   );
 }

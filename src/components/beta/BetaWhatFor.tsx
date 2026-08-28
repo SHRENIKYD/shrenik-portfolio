@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { profile } from "@/data/resume";
 import { withBasePath } from "@/lib/basePath";
+import { scrollToId } from "@/components/beta/SmoothScroll";
 
 // "WHAT ARE YOU LOOKING FOR?" wayfinding block + the "ask me anything"
 // pill, after activetheory.net/work. The arrow links route to real
@@ -24,7 +25,7 @@ export default function BetaWhatFor() {
       window.dispatchEvent(new Event("open-contact"));
       return;
     }
-    document.querySelector(href)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    scrollToId(href.replace(/^#/, ""));
   };
 
   return (
