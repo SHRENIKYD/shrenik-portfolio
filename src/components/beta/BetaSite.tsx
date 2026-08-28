@@ -11,21 +11,10 @@ import BetaContactOverlay from "@/components/beta/BetaContactOverlay";
 import SmoothScroll from "@/components/beta/SmoothScroll";
 
 // The whole cinematic site as one composition — served at "/" (the main
-// portfolio) and at "/beta", which is where experiments land first.
+// portfolio) and kept at "/beta" as an alias.
 //
-// smoothScroll is one such experiment, currently live on /beta only: it
-// replaces the page-scrolling feel with eased, weighted movement.
-export default function BetaSite({ smoothScroll = false }: { smoothScroll?: boolean }) {
-  const content = (
-    <main className="relative z-10">
-      <BetaHero />
-      <BetaJourney />
-      <BetaWhatFor />
-      <BetaCraft />
-      <BetaAbout />
-    </main>
-  );
-
+// The eased scrolling was tried on /beta first and now runs everywhere.
+export default function BetaSite() {
   return (
     <div className="relative">
       {/* WebGL underwater scene — mounted after the global grid canvas in
@@ -36,7 +25,15 @@ export default function BetaSite({ smoothScroll = false }: { smoothScroll?: bool
       <BetaNav />
       {/* fixed layers stay outside SmoothScroll — a transformed ancestor
           would capture them and they would scroll away */}
-      {smoothScroll ? <SmoothScroll>{content}</SmoothScroll> : content}
+      <SmoothScroll>
+        <main className="relative z-10">
+          <BetaHero />
+          <BetaJourney />
+          <BetaWhatFor />
+          <BetaCraft />
+          <BetaAbout />
+        </main>
+      </SmoothScroll>
       <BetaContactOverlay />
     </div>
   );
