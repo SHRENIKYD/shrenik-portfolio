@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { profile } from "@/data/resume";
 import { withBasePath } from "@/lib/basePath";
+import { contact as sfx } from "@/lib/sound";
 
 // Full-screen contact takeover — the "Neon ignition" concept picked from
 // the Hailing Frequencies mockups. Opened from anywhere via the
@@ -12,6 +13,11 @@ import { withBasePath } from "@/lib/basePath";
 // flickers, stutters, then holds with a green-white glow — ignition
 // spreads in waves and a few tubes stay faulty forever. A wireframe
 // globe turns behind with Bengaluru pinged.
+//
+// Scored with the "Terminal" profile: a relay click per flicker, a keycap
+// thock as each character locks, a faint fan bed once the sign holds, and
+// an old-CRT collapse on the way out. Because the overlay always opens
+// from a click, its audio context is never blocked. See src/lib/sound.ts.
 
 const ROWS = ["BEN", "GAL", "URU"];
 
@@ -77,6 +83,22 @@ export default function BetaContactOverlay() {
       ig[si] = 0.35 + oi * 0.05;
       faulty[si] = Math.random() < 0.06;
     });
+
+    // the breaker throws the moment the overlay opens, and the fan bed
+    // fades in once the last tube has had its turn
+    sfx.powerOn();
+    const lastIgnition = spans.length ? ig[order[order.length - 1]] : 0;
+    const humTimer = window.setTimeout(() => sfx.humStart(), (lastIgnition + 0.5) * 1000);
+
+    // Sound is driven off the same per-character state as the visuals, so
+    // it can never drift. Throttles keep a hundred simultaneous flickers
+    // from turning into a wall of noise.
+    const wasOn = new Array<boolean>(spans.length).fill(false);
+    const locked = new Array<boolean>(spans.length).fill(false);
+    let lastFlicker = -1;
+    let lastLock = -1;
+    let lastFaulty = -1;
+
     let raf = 0;
     const t0 = performance.now();
     const tick = (now: number) => {
@@ -87,13 +109,38 @@ export default function BetaContactOverlay() {
         if (lt < 0) on = false;
         else if (lt < 0.4) on = Math.random() < (lt / 0.4) * 0.8;
         else on = faulty[i] ? Math.random() < 0.86 : true;
+
+        if (lt >= 0) {
+          if (lt < 0.4) {
+            // stutter window — relay clicks as the tube tries to catch
+            if (on && !wasOn[i] && t - lastFlicker > 0.05) {
+              lastFlicker = t;
+              sfx.flicker();
+            }
+          } else if (!locked[i]) {
+            locked[i] = true; // the character holds — one keycap thock
+            if (t - lastLock > 0.045) {
+              lastLock = t;
+              sfx.lock();
+            }
+          } else if (faulty[i] && on && !wasOn[i] && t - lastFaulty > 0.5) {
+            lastFaulty = t; // a dud tube ticking away for the rest of the visit
+            sfx.faulty();
+          }
+        }
+        wasOn[i] = on;
+
         s.style.opacity = on ? "1" : "0.07";
         s.style.textShadow = on ? GLOW : "none";
       });
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.clearTimeout(humTimer);
+      sfx.powerOff(); // every close path lands here — CRT collapse, hum dies
+    };
   }, [open]);
 
   // wireframe globe with Bengaluru ping
@@ -223,6 +270,7 @@ export default function BetaContactOverlay() {
 
             <a
               href={`mailto:${profile.email}`}
+              onMouseEnter={() => sfx.hover()}
               className="mt-8 border-b-2 border-[#6e8792] pb-1.5 font-mono text-base tracking-[0.12em] text-[#cfdde3] transition-colors hover:border-[#39ff8e] sm:text-xl"
             >
               <Neon text={profile.email.toUpperCase()} />
@@ -233,6 +281,7 @@ export default function BetaContactOverlay() {
                 href={profile.linkedin}
                 target="_blank"
                 rel="noreferrer"
+                onMouseEnter={() => sfx.hover()}
                 className="transition-colors hover:text-[#39ff8e]"
               >
                 <Neon text="LINKEDIN" />
@@ -241,6 +290,7 @@ export default function BetaContactOverlay() {
                 href={profile.github}
                 target="_blank"
                 rel="noreferrer"
+                onMouseEnter={() => sfx.hover()}
                 className="transition-colors hover:text-[#39ff8e]"
               >
                 <Neon text="GITHUB" />
@@ -248,6 +298,7 @@ export default function BetaContactOverlay() {
               <a
                 href={withBasePath(`/${profile.resumeFile}`)}
                 download
+                onMouseEnter={() => sfx.hover()}
                 className="transition-colors hover:text-[#39ff8e]"
               >
                 <Neon text="RESUME" />

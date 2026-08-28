@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { armOnGesture, boot } from "@/lib/sound";
 
 // Entry gate for /beta — the "Runaway terminal" concept, picked from the
 // Entry Sequences mockups. A terminal types code by itself, slowly at
@@ -11,6 +12,11 @@ import { AnimatePresence, motion } from "framer-motion";
 //
 // Canvas-driven. Shows once per session; skipped for reduced-motion;
 // click / tap / any key skips immediately.
+//
+// Scored with the "Dead air" profile: a vast, almost inaudible room, three
+// or four small dry ticks across the whole run, and a burst that is not a
+// sound at all but the room cut to absolute silence with one soft tone
+// arriving in the gap. See src/lib/sound.ts.
 
 const LOAD_S = 2.6;
 const IMPLODE_S = 0.34;
@@ -59,11 +65,17 @@ export default function BetaLoader() {
     const dismiss = () => {
       if (doneRef.current) return;
       doneRef.current = true;
+      boot.settle();
       sessionStorage.setItem("beta-loader-seen", "1");
       setGone(true);
     };
     const onKey = () => dismiss();
     window.addEventListener("keydown", onKey);
+
+    // the room comes up with the first character; a click anywhere also
+    // unblocks audio, so a skip mid-run still lands with sound
+    armOnGesture();
+    boot.begin();
 
     // release-phase ray directions, fixed per run
     const rays = Array.from({ length: 30 }, (_, i) => ({
@@ -77,6 +89,10 @@ export default function BetaLoader() {
     let raf = 0;
     const t0 = performance.now();
     let last = t0;
+    // audio phase latches — each sound fires exactly once per run
+    let nextKey = 0;
+    let firedImplode = false;
+    let firedBurst = false;
     const easeOut = (x: number) => 1 - Math.pow(1 - x, 3);
 
     const tick = (now: number) => {
@@ -96,6 +112,16 @@ export default function BetaLoader() {
         const p = 1 - Math.pow(1 - t / LOAD_S, 2.2);
         const rate = 14 * Math.exp(p * 4.2);
         chars += rate * dt;
+
+        // the room swells with progress; keystroke ticks fire on their own
+        // clock, which tightens with p — at 900 chars/sec a tick per
+        // character would just be noise
+        boot.progress(p);
+        if (t >= nextKey) {
+          boot.key();
+          nextKey = t + 0.145 * Math.pow(0.2, p) * (0.75 + Math.random() * 0.5);
+        }
+
         while (buf.join(" ").length < chars) {
           buf.push(TOKENS[(Math.random() * TOKENS.length) | 0]);
           if (buf.length > 400) buf.shift();
@@ -142,6 +168,10 @@ export default function BetaLoader() {
         const rt = t - LOAD_S;
         if (rt < IMPLODE_S) {
           // ---- implosion: everything collapses to a point ----
+          if (!firedImplode) {
+            firedImplode = true;
+            boot.implode();
+          }
           const impl = rt / IMPLODE_S;
           const ir = (1 - impl) * 130;
           ctx.strokeStyle = `rgba(57,255,142,${(0.65 * impl).toFixed(3)})`;
@@ -151,6 +181,10 @@ export default function BetaLoader() {
           ctx.stroke();
         } else if (rt < IMPLODE_S + BURST_S) {
           // ---- burst: radial rays of type ----
+          if (!firedBurst) {
+            firedBurst = true;
+            boot.burst(); // cuts the room to nothing — that IS the sound
+          }
           const bt = rt - IMPLODE_S;
           const burst = easeOut(Math.min(1, bt * 0.85));
           ctx.textAlign = "center";
@@ -190,6 +224,7 @@ export default function BetaLoader() {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", size);
       window.removeEventListener("keydown", onKey);
+      boot.settle(); // never leave the room bed running
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gone]);
