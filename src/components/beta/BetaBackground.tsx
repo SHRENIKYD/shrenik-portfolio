@@ -4,9 +4,10 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 // Deep-water ambient WebGL background for /beta — a slow drift of glowing
-// particulate hanging in fog, lit from the top-left, with the camera
-// travelling downward as you scroll (so each section feels like sinking a
-// little deeper). Inspired by the underwater ambience of activetheory.net.
+// particulate hanging in fog, plus "marine snow": glyphs sinking forever
+// through the water column and settling as sediment on the seafloor at
+// the bottom of the scroll. The camera travels downward as you scroll,
+// so each section feels like sinking a little deeper.
 //
 // Deliberately restrained: no post-processing stack, one Points cloud +
 // exponential fog + additive blending. Pauses off-tab, caps DPR at 2,
@@ -126,66 +127,83 @@ export default function BetaBackground() {
     const bokeh = new THREE.Points(bGeo, bMat);
     scene.add(bokeh);
 
-    // central "spine" — a double helix of brighter points with faint
-    // cross-rungs, running the full depth of the descent. An abstract
-    // nod to the vertebral column on activetheory.net's work page.
-    const spine = new THREE.Group();
-    const SEG = 240;
-    const HELIX_R = 2.3;
-    const TWIST = 0.42;
-    const strandPos = new Float32Array(SEG * 2 * 3);
-    const strandCol = new Float32Array(SEG * 2 * 3);
-    const rungVerts: number[] = [];
-    const spineTints = [0x39ff8e, 0x6cb6ff, 0xa07bff];
-    for (let i = 0; i < SEG; i++) {
-      const y = 12 - (i / (SEG - 1)) * (DEPTH_SPAN + 10);
-      const a = y * TWIST;
-      for (let s = 0; s < 2; s++) {
-        const phase = a + s * Math.PI;
-        const idx = (i * 2 + s) * 3;
-        strandPos[idx] = Math.sin(phase) * HELIX_R;
-        strandPos[idx + 1] = y;
-        strandPos[idx + 2] = Math.cos(phase) * HELIX_R;
-        color.setHex(spineTints[(i + s) % spineTints.length]);
-        const glow = 0.5 + 0.5 * Math.abs(Math.sin(a * 0.5));
-        strandCol[idx] = color.r * glow;
-        strandCol[idx + 1] = color.g * glow;
-        strandCol[idx + 2] = color.b * glow;
-      }
-      if (i % 5 === 0) {
-        rungVerts.push(
-          Math.sin(a) * HELIX_R, y, Math.cos(a) * HELIX_R,
-          Math.sin(a + Math.PI) * HELIX_R, y, Math.cos(a + Math.PI) * HELIX_R
-        );
-      }
+    // marine snow — glyphs sinking forever through the water column,
+    // settling into a faint sediment drift on the seafloor at the very
+    // bottom of the scroll (the deep the camera reaches at Contact).
+    const GLYPHS = ["/", "0", "1", "<", ">", "{", "}", ";", "=", "+"];
+    const SNOW_PER = coarse ? 20 : 38; // falling glyphs per character
+    const SED_PER = 12; // settled glyphs per character
+    const FLOOR_TOP = -(DEPTH_SPAN - 20); // just below the camera's deepest stop
+    const SNOW_RANGE = 12 - FLOOR_TOP;
+    const makeGlyphTexture = (ch: string) => {
+      const size = 64;
+      const c = document.createElement("canvas");
+      c.width = size;
+      c.height = size;
+      const g = c.getContext("2d")!;
+      g.font = "600 44px ui-monospace, Menlo, monospace";
+      g.textAlign = "center";
+      g.textBaseline = "middle";
+      g.fillStyle = "#ffffff";
+      g.fillText(ch, size / 2, size / 2 + 2);
+      return new THREE.CanvasTexture(c);
+    };
+    const snowTints = [0x7fa3b0, 0x7fa3b0, 0x7fa3b0, 0x39ff8e, 0x6cb6ff, 0xa07bff];
+    interface SnowCloud {
+      points: THREE.Points;
+      geo: THREE.BufferGeometry;
+      mat: THREE.PointsMaterial;
+      tex: THREE.Texture;
+      base: Float32Array;
+      speed: Float32Array;
+      phase: Float32Array;
+      n: number;
     }
-    const strandGeo = new THREE.BufferGeometry();
-    strandGeo.setAttribute("position", new THREE.BufferAttribute(strandPos, 3));
-    strandGeo.setAttribute("color", new THREE.BufferAttribute(strandCol, 3));
-    const strandMat = new THREE.PointsMaterial({
-      size: 0.34,
-      map: mat.map,
-      vertexColors: true,
-      transparent: true,
-      opacity: 0.9,
-      depthWrite: false,
-      blending: THREE.AdditiveBlending,
-      sizeAttenuation: true,
+    const snowClouds: SnowCloud[] = GLYPHS.map((ch) => {
+      const n = SNOW_PER + SED_PER;
+      const pos = new Float32Array(n * 3);
+      const col = new Float32Array(n * 3);
+      const speed = new Float32Array(n);
+      const phase = new Float32Array(n);
+      for (let i = 0; i < n; i++) {
+        const settled = i >= SNOW_PER;
+        // z stays well short of the camera (z=10) so no glyph ever
+        // balloons across the screen as it passes the lens
+        if (settled) {
+          pos[i * 3] = (Math.random() - 0.5) * 52;
+          pos[i * 3 + 1] = FLOOR_TOP - 2 - Math.random() * 4;
+          pos[i * 3 + 2] = -18 + Math.random() * 22;
+          speed[i] = 0;
+        } else {
+          pos[i * 3] = (Math.random() - 0.5) * 44;
+          pos[i * 3 + 1] = FLOOR_TOP + Math.random() * SNOW_RANGE;
+          pos[i * 3 + 2] = -18 + Math.random() * 22;
+          speed[i] = 0.5 + Math.random() * 1.0;
+        }
+        phase[i] = Math.random() * Math.PI * 2;
+        color.setHex(snowTints[(Math.random() * snowTints.length) | 0]);
+        const dim = settled ? 0.22 : 0.4 + Math.random() * 0.4;
+        col[i * 3] = color.r * dim;
+        col[i * 3 + 1] = color.g * dim;
+        col[i * 3 + 2] = color.b * dim;
+      }
+      const geo2 = new THREE.BufferGeometry();
+      geo2.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+      geo2.setAttribute("color", new THREE.BufferAttribute(col, 3));
+      const tex = makeGlyphTexture(ch);
+      const mat2 = new THREE.PointsMaterial({
+        size: 0.6,
+        map: tex,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.85,
+        depthWrite: false,
+        sizeAttenuation: true,
+      });
+      const points = new THREE.Points(geo2, mat2);
+      scene.add(points);
+      return { points, geo: geo2, mat: mat2, tex, base: pos.slice(), speed, phase, n };
     });
-    spine.add(new THREE.Points(strandGeo, strandMat));
-
-    const rungGeo = new THREE.BufferGeometry();
-    rungGeo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(rungVerts), 3));
-    const rungMat = new THREE.LineBasicMaterial({
-      color: 0x6cb6ff,
-      transparent: true,
-      opacity: 0.1,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-    });
-    spine.add(new THREE.LineSegments(rungGeo, rungMat));
-    spine.position.z = -2;
-    scene.add(spine);
 
     // pointer parallax + scroll-driven descent
     const target = { x: 0, y: 0 };
@@ -253,7 +271,23 @@ export default function BetaBackground() {
       camera.rotation.z += (target.x * -0.015 - camera.rotation.z) * 0.02;
 
       bokeh.rotation.y = t * 0.008;
-      spine.rotation.y = t * 0.06;
+
+      // marine snow: sink, sway, wrap back to the surface; sediment
+      // (speed 0) stays put on the seafloor
+      for (const cloud of snowClouds) {
+        const attr = cloud.geo.getAttribute("position") as THREE.BufferAttribute;
+        const arr = attr.array as Float32Array;
+        for (let i = 0; i < cloud.n; i++) {
+          const sp = cloud.speed[i];
+          if (sp === 0) continue;
+          const by = cloud.base[i * 3 + 1];
+          const yRaw = by - t * sp;
+          arr[i * 3 + 1] =
+            FLOOR_TOP + ((((yRaw - FLOOR_TOP) % SNOW_RANGE) + SNOW_RANGE) % SNOW_RANGE);
+          arr[i * 3] = cloud.base[i * 3] + Math.sin(t * 0.3 + cloud.phase[i]) * 1.1;
+        }
+        attr.needsUpdate = true;
+      }
 
       renderer.render(scene, camera);
       if (running) rafId = requestAnimationFrame(tick);
@@ -274,13 +308,14 @@ export default function BetaBackground() {
       document.removeEventListener("visibilitychange", onVisibility);
       geo.dispose();
       bGeo.dispose();
-      strandGeo.dispose();
-      rungGeo.dispose();
+      for (const cloud of snowClouds) {
+        cloud.geo.dispose();
+        cloud.mat.dispose();
+        cloud.tex.dispose();
+      }
       mat.map?.dispose();
       mat.dispose();
       bMat.dispose();
-      strandMat.dispose();
-      rungMat.dispose();
       renderer.dispose();
       mount.removeChild(renderer.domElement);
     };
