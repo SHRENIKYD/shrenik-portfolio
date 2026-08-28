@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
 // Deep-water ambient WebGL background for /beta — a slow drift of glowing
@@ -33,8 +33,23 @@ function makeSpriteTexture(): THREE.Texture {
   return tex;
 }
 
+// Not every visitor has WebGL. In-app browsers (LinkedIn, Instagram),
+// corporate machines with the GPU blocklisted, older phones and privacy
+// setups that disable it for fingerprinting reasons all end up here — and
+// three.js THROWS when it cannot create a context. Unhandled, that took the
+// whole page down and showed a blank error screen instead of the portfolio.
+function supportsWebGL(): boolean {
+  try {
+    const canvas = document.createElement("canvas");
+    return !!(canvas.getContext("webgl2") || canvas.getContext("webgl"));
+  } catch {
+    return false;
+  }
+}
+
 export default function BetaBackground() {
   const mountRef = useRef<HTMLDivElement>(null);
+  const [webglDown, setWebglDown] = useState(false);
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -44,11 +59,31 @@ export default function BetaBackground() {
     const coarse = window.matchMedia("(pointer: coarse)").matches;
     const COUNT = coarse ? 500 : 1100;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
+    if (!supportsWebGL()) {
+      setWebglDown(true);
+      return;
+    }
+
+    // The probe can pass and creation still fail — a blocklisted driver, an
+    // exhausted context pool. Never let that escape into the render tree.
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
+    } catch {
+      setWebglDown(true);
+      return;
+    }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setClearColor(0x05080a, 1);
     mount.appendChild(renderer.domElement);
+
+    // a context can be lost at runtime too (backgrounded GPU, driver reset)
+    const onContextLost = (e: Event) => {
+      e.preventDefault();
+      setWebglDown(true);
+    };
+    renderer.domElement.addEventListener("webglcontextlost", onContextLost);
 
     const scene = new THREE.Scene();
     scene.fog = new THREE.FogExp2(0x05080a, 0.055);
@@ -316,6 +351,7 @@ export default function BetaBackground() {
       mat.map?.dispose();
       mat.dispose();
       bMat.dispose();
+      renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
       renderer.dispose();
       mount.removeChild(renderer.domElement);
     };
@@ -324,6 +360,19 @@ export default function BetaBackground() {
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
       <div ref={mountRef} className="absolute inset-0" />
+      {/* Stands in for the WebGL scene when there is no context. The light
+          shafts below still paint over it, so the page keeps its depth
+          instead of collapsing to flat black. */}
+      {webglDown && (
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse 120% 80% at 50% -20%, #0b1620 0%, #070d12 45%, #05080a 100%)," +
+              "radial-gradient(ellipse 60% 40% at 80% 30%, rgba(60,110,140,0.10), transparent 60%)",
+          }}
+        />
+      )}
       {/* volumetric light shaft from the top-left + depth vignette,
           done in cheap CSS on top of the WebGL layer */}
       <div
