@@ -244,7 +244,7 @@ export default function BetaContactOverlay() {
             <button
               type="button"
               onClick={goWork}
-              className="font-mono text-xs uppercase tracking-[0.25em] text-[#c9d1d9] transition-colors hover:text-[#39ff8e]"
+              className="whitespace-nowrap font-mono text-xs uppercase tracking-[0.25em] text-[#c9d1d9] transition-colors hover:text-[#39ff8e]"
             >
               Work
             </button>
@@ -252,7 +252,7 @@ export default function BetaContactOverlay() {
             <button
               type="button"
               onClick={close}
-              className="font-mono text-xs uppercase tracking-[0.25em] text-[#7fa3b0] transition-colors hover:text-[#39ff8e]"
+              className="whitespace-nowrap font-mono text-xs uppercase tracking-[0.25em] text-[#7fa3b0] transition-colors hover:text-[#39ff8e]"
             >
               Close-X
             </button>

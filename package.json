@@ -6,9 +6,20 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "app:build": "NEXT_PUBLIC_BASE_PATH= next build",
+    "app:sync": "npm run app:build && cap sync",
+    "app:android": "npm run app:sync && cap open android",
+    "app:ios": "npm run app:sync && cap open ios"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/browser": "^8.0.4",
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/ios": "^8.5.0",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.3",
     "@types/three": "^0.185.4",
     "framer-motion": "^12.43.0",
     "lucide-react": "^1.28.0",
@@ -18,6 +29,8 @@
     "three": "^0.185.1"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.5.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

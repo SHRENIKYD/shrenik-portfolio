@@ -65,7 +65,7 @@ export default function BetaNav() {
           <button
             type="button"
             onClick={() => goTo("work")}
-            className="font-mono text-xs uppercase tracking-[0.25em] text-[#c9d1d9] transition-colors hover:text-[#39ff8e]"
+            className="whitespace-nowrap font-mono text-xs uppercase tracking-[0.25em] text-[#c9d1d9] transition-colors hover:text-[#39ff8e]"
           >
             Work
           </button>
@@ -73,7 +73,7 @@ export default function BetaNav() {
           <button
             type="button"
             onClick={() => goTo("contact")}
-            className="font-mono text-xs uppercase tracking-[0.25em] text-[#c9d1d9] transition-colors hover:text-[#39ff8e]"
+            className="whitespace-nowrap font-mono text-xs uppercase tracking-[0.25em] text-[#c9d1d9] transition-colors hover:text-[#39ff8e]"
           >
             Contact
           </button>

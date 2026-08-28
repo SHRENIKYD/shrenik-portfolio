@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Shrenik.YD</string>
+    <string name="title_activity_main">Shrenik.YD</string>
+    <string name="package_name">in.shrenikyd.portfolio</string>
+    <string name="custom_url_scheme">in.shrenikyd.portfolio</string>
+</resources>
