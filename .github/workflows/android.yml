@@ -24,9 +24,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Capacitor 8's CLI requires Node >= 22 — the Pages workflow's Node 20
+      # is fine for Next but makes `cap sync` refuse to run.
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       # Capacitor's Android project targets JDK 21
