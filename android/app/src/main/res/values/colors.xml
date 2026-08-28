@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The site's ground colour. MainActivity pads the web content out of
+         the system bars, so these strips show this. -->
+    <color name="groundColor">#05080a</color>
+</resources>

@@ -13,6 +13,11 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:background">@null</item>
+        <!-- MainActivity pads the content view out of the system bars; these
+             strips show the window background, which must match the site -->
+        <item name="android:windowBackground">@color/groundColor</item>
+        <item name="android:statusBarColor">@color/groundColor</item>
+        <item name="android:navigationBarColor">@color/groundColor</item>
     </style>
 
 
