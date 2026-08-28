@@ -107,3 +107,13 @@ body {
 .text-glow {
   text-shadow: 0 0 12px var(--accent-glow);
 }
+
+/* Set by SmoothScroll while eased scrolling is active. The scrollbar is the
+   last thing that says "this is a document" — the top progress bar takes
+   over as the position indicator. Scrolling itself is untouched. */
+html.smooth-scroll {
+  scrollbar-width: none;
+}
+html.smooth-scroll::-webkit-scrollbar {
+  display: none;
+}

@@ -3,10 +3,11 @@ import BetaSite from "@/components/beta/BetaSite";
 
 export const metadata: Metadata = {
   title: "Shrenik YD — Beta",
-  description: "Alias of the main portfolio — same experience as /.",
+  description: "Where new ideas for the portfolio land first.",
 };
 
-// Kept as an alias of the homepage so old links keep working.
+// The proving ground: same site as "/", plus whatever is being tried out.
+// Right now that is the eased, weighted scrolling.
 export default function BetaPage() {
-  return <BetaSite />;
+  return <BetaSite smoothScroll />;
 }

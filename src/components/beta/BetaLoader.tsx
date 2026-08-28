@@ -286,11 +286,6 @@ export default function BetaLoader() {
             >
               Enter
             </button>
-
-            {/* the honest reason this screen exists */}
-            <p className="mt-7 font-mono text-[10px] tracking-[0.24em] text-[#3d4d55]">
-              BEST WITH SOUND
-            </p>
           </motion.div>
         </motion.div>
       )}

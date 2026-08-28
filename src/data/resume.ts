@@ -96,6 +96,13 @@ export const jobs: Job[] = [
         ],
       },
     ],
+    responsibilities: [
+      "Full-stack ownership across front-end, back-end and API layers on AI-powered claims and payroll platforms.",
+      "Built new modules in Angular 21 and .NET Core while maintaining legacy VB.NET and Knockout.js areas of the same products.",
+      "Designed and consumed C# Web APIs backed by SQL Server for core claims and payroll workflows.",
+      "Integrated Azure AI Services into the claims platform to support AI-driven functionality.",
+      "Worked in an Agile environment with cross-functional teams on requirements, feature delivery and defect resolution.",
+    ],
     tech: [
       "Angular 21",
       ".NET Core",

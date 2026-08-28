@@ -93,15 +93,6 @@ export default function BetaHero() {
         <ArrowDown size={14} className="animate-bounce" />
         scroll
       </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 1.3 }}
-        className="absolute bottom-8 right-6 font-mono text-[11px] uppercase tracking-[0.25em] text-[#556058] sm:bottom-10 sm:right-10"
-      >
-        beta build
-      </motion.div>
     </section>
   );
 }
