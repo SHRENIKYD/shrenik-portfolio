@@ -38,6 +38,20 @@ export function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+// Call this from inside a real user gesture (a click handler) and await it
+// before starting anything that needs to be scored. It is the only way to
+// guarantee the context is running on the very first frame, which is why
+// the loader sits behind an entry gate.
+export async function unlockAudio(): Promise<void> {
+  const ctx = ensure();
+  if (!ctx || ctx.state !== "suspended") return;
+  try {
+    await ctx.resume();
+  } catch {
+    /* the browser refused — the scene will simply play silent */
+  }
+}
+
 // Browsers refuse to start audio before the visitor has interacted with the
 // page, so on a cold load the context exists but is suspended. Resume it on
 // the first gesture of any kind — after that everything sounds normally.

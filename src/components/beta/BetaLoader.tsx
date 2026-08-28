@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { armOnGesture, boot } from "@/lib/sound";
+import { armOnGesture, boot, unlockAudio } from "@/lib/sound";
+import { profile } from "@/data/resume";
 
 // Entry gate for /beta — the "Runaway terminal" concept, picked from the
 // Entry Sequences mockups. A terminal types code by itself, slowly at
@@ -31,16 +32,31 @@ const TOKENS = [
 const GLYPHS = "/01<>{};=+".split("");
 const MONO = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace';
 
+// "hidden" — nothing to show (already seen this session, or reduced-motion)
+// "gate"   — waiting for the one click that lets the browser play audio
+// "running" — the sequence itself
+type Phase = "hidden" | "gate" | "running";
+
 export default function BetaLoader() {
-  const [gone, setGone] = useState(true); // hidden until mount decides
+  const [phase, setPhase] = useState<Phase>("hidden"); // until mount decides
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const doneRef = useRef(false);
+  const gone = phase !== "running";
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const seen = sessionStorage.getItem("beta-loader-seen");
-    if (!reduce && !seen) setGone(false);
+    if (!reduce && !seen) setPhase("gate");
   }, []);
+
+  // The gate exists for exactly one reason: a browser will not let a page
+  // play audio until the visitor has interacted with it, and a loader runs
+  // before any interaction has happened. One click here, awaited, and the
+  // context is running before the first frame — so the score is in sync.
+  const enter = async () => {
+    await unlockAudio();
+    setPhase("running");
+  };
 
   useEffect(() => {
     if (gone) return;
@@ -67,7 +83,7 @@ export default function BetaLoader() {
       doneRef.current = true;
       boot.settle();
       sessionStorage.setItem("beta-loader-seen", "1");
-      setGone(true);
+      setPhase("hidden");
     };
     const onKey = () => dismiss();
     window.addEventListener("keydown", onKey);
@@ -232,14 +248,56 @@ export default function BetaLoader() {
   const skip = () => {
     if (doneRef.current) return;
     doneRef.current = true;
+    boot.settle();
     sessionStorage.setItem("beta-loader-seen", "1");
-    setGone(true);
+    setPhase("hidden");
   };
 
   return (
     <AnimatePresence>
-      {!gone && (
+      {phase === "gate" && (
         <motion.div
+          key="gate"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.35, ease: "easeInOut" }}
+          className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-[#030507] px-6"
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="flex flex-col items-center"
+          >
+            <span className="font-mono text-[10px] uppercase tracking-[0.42em] text-[#39ff8e]">
+              {profile.location.split(",")[0]}
+            </span>
+            <h1 className="mt-5 font-mono text-2xl font-semibold tracking-[0.16em] text-[#e8efe9] sm:text-3xl">
+              SHRENIK.YD
+            </h1>
+            <p className="mt-2 font-mono text-[11px] tracking-[0.28em] text-[#556058]">
+              {profile.title.toUpperCase()}
+            </p>
+
+            <button
+              type="button"
+              onClick={enter}
+              autoFocus
+              className="group mt-12 rounded-full border border-[#1c2621] px-11 py-4 font-mono text-xs uppercase tracking-[0.38em] text-[#c9d1d9] transition-colors duration-300 hover:border-[#39ff8e]/60 hover:text-[#39ff8e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#39ff8e]"
+            >
+              Enter
+            </button>
+
+            {/* the honest reason this screen exists */}
+            <p className="mt-7 font-mono text-[10px] tracking-[0.24em] text-[#3d4d55]">
+              BEST WITH SOUND
+            </p>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {phase === "running" && (
+        <motion.div
+          key="run"
           exit={{ opacity: 0 }}
           transition={{ duration: 0.55, ease: "easeInOut" }}
           onClick={skip}
