@@ -101,6 +101,16 @@ function ensure(): AudioContext | null {
   return ac;
 }
 
+// A suspended context has a FROZEN clock: anything scheduled against it is
+// queued and then fires in a heap the instant it resumes, which lands the
+// whole score after the animation it was meant to follow. So every sound
+// goes through here — if the context is not actually running, the sound is
+// dropped rather than deferred. Silence beats late.
+function ready(): AudioContext | null {
+  const ctx = ensure();
+  return ctx && ctx.state === "running" ? ctx : null;
+}
+
 /** split a source between the dry path and the room, 0 = dry, 1 = drenched */
 function send(ctx: AudioContext, node: AudioNode, wetAmt: number): void {
   if (!dryBus || !verb) return;
@@ -137,7 +147,7 @@ function struck(
   delay = 0,
   glideTo?: number
 ): void {
-  const ctx = ensure();
+  const ctx = ready();
   if (!ctx) return;
   const t = ctx.currentTime + delay;
   const osc = ctx.createOscillator();
@@ -168,7 +178,7 @@ function air(
   wetAmt = 0.4,
   delay = 0
 ): void {
-  const ctx = ensure();
+  const ctx = ready();
   if (!ctx) return;
   const t = ctx.currentTime + delay;
   const src = noiseSource(ctx);
@@ -188,7 +198,7 @@ function air(
 }
 
 function bed(build: BedBuild, wetAmt = 0.4): Bed | null {
-  const ctx = ensure();
+  const ctx = ready();
   if (!ctx) return null;
   const g = ctx.createGain();
   g.gain.value = 0.0001;
@@ -243,32 +253,43 @@ export function stopAllSound(): void {
 
 let room: Bed | null = null;
 let bootTicks = 0;
+let bootRunning = false;
+
+function openRoom(): void {
+  if (room) return;
+  room = bed((ctx, out) => {
+    const src = noiseSource(ctx);
+    const lp = ctx.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.value = 190;
+    lp.Q.value = 0.7;
+    src.connect(lp);
+    lp.connect(out);
+    src.start();
+    return [src];
+  }, 0.95);
+  room?.set(0.03);
+}
 
 export const boot = {
   begin(): void {
-    if (!ensure()) return;
     bootTicks = 0;
-    room = bed((ctx, out) => {
-      const src = noiseSource(ctx);
-      const lp = ctx.createBiquadFilter();
-      lp.type = "lowpass";
-      lp.frequency.value = 190;
-      lp.Q.value = 0.7;
-      src.connect(lp);
-      lp.connect(out);
-      src.start();
-      return [src];
-    }, 0.95);
-    room?.set(0.03);
+    bootRunning = true;
+    ensure(); // ask for the context; it may still be blocked
+    openRoom(); // no-op while suspended — see progress()
   },
 
   progress(p: number): void {
+    if (!bootRunning) return;
+    // If the visitor clicks partway through, audio unblocks mid-run: open
+    // the room at that moment and score the rest in sync, rather than
+    // replaying a backlog of sounds whose moment has passed.
+    if (!room) openRoom();
     room?.set(0.03 + p * 0.03);
   },
 
   /** one call per typed burst — only every ninth is audible, and barely */
   key(): void {
-    if (!ensure()) return;
     bootTicks += 1;
     if (bootTicks % 9 !== 0) return;
     air(1800, 9, 0.03, 0.012, "bandpass", 0.15);
@@ -284,6 +305,7 @@ export const boot = {
   },
 
   settle(): void {
+    bootRunning = false;
     room?.stop(1.4);
     room = null;
   },
@@ -298,7 +320,6 @@ let hum: Bed | null = null;
 
 export const contact = {
   powerOn(): void {
-    if (!ensure()) return;
     air(150, 1.5, 0.3, 0.08, "bandpass", 0.2);
     struck(60, 0.12, 0.15, 0.2, "square");
   },
@@ -321,7 +342,7 @@ export const contact = {
   },
 
   humStart(): void {
-    if (!ensure() || hum) return;
+    if (hum) return;
     hum = bed((ctx, out) => {
       const src = noiseSource(ctx);
       const lp = ctx.createBiquadFilter();
@@ -336,9 +357,9 @@ export const contact = {
   },
 
   powerOff(): void {
-    if (!ensure()) return;
     struck(1800, 0.08, 0.25, 0.15, "square", 0, 60);
     air(120, 1, 0.2, 0.15, "lowpass", 0.25);
+    // the bed teardown must run even if the sounds themselves were dropped
     hum?.stop(0.35);
     hum = null;
   },
