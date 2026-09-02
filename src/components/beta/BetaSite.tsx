@@ -5,6 +5,7 @@ import BetaNav from "@/components/beta/BetaNav";
 import BetaWhatFor from "@/components/beta/BetaWhatFor";
 import BetaHero from "@/components/beta/BetaHero";
 import BetaJourney from "@/components/beta/BetaJourney";
+import BetaArchitecture from "@/components/beta/BetaArchitecture";
 import BetaCraft from "@/components/beta/BetaCraft";
 import BetaAbout from "@/components/beta/BetaAbout";
 import BetaContactOverlay from "@/components/beta/BetaContactOverlay";
@@ -30,6 +31,7 @@ export default function BetaSite() {
           <BetaHero />
           <BetaJourney />
           <BetaWhatFor />
+          <BetaArchitecture />
           <BetaCraft />
           <BetaAbout />
         </main>

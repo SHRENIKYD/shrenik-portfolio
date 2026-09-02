@@ -17,7 +17,7 @@ export default function BetaAbout() {
           className="mb-16 sm:mb-20"
         >
           <h2 className="font-mono text-xs uppercase tracking-[0.3em] text-[#556058]">
-            03 — About
+            04 — About
           </h2>
         </motion.div>
 

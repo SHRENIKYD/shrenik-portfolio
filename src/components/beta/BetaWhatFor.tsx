@@ -13,6 +13,7 @@ import { scrollToId } from "@/components/beta/SmoothScroll";
 const LINKS: { label: string; href: string }[] = [
   { label: "FULL-STACK WORK", href: "#work" },
   { label: "THE JOB HISTORY", href: "#experience" },
+  { label: "HOW IT FITS TOGETHER", href: "#architecture" },
   { label: "SKILLS / TOOLING", href: "#craft" },
   { label: "THE PERSON BEHIND IT", href: "#about" },
   { label: "A RÉSUMÉ", href: "resume" },
