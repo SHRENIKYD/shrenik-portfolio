@@ -52,8 +52,16 @@ async function resolve(urlPath) {
 createServer(async (req, res) => {
   const file = await resolve(req.url || "/");
   if (!file) {
-    res.writeHead(404, { "content-type": "text/plain" });
-    res.end("not found");
+    // GitHub Pages serves 404.html for any unmatched path; match that here so
+    // the tests exercise the page visitors actually get.
+    try {
+      const notFound = await readFile(join(ROOT, "404.html"));
+      res.writeHead(404, { "content-type": TYPES[".html"] });
+      res.end(notFound);
+    } catch {
+      res.writeHead(404, { "content-type": "text/plain" });
+      res.end("not found");
+    }
     return;
   }
   try {

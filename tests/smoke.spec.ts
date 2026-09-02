@@ -141,3 +141,17 @@ test.describe("the installable app", () => {
     expect(await res.text()).toContain("addEventListener");
   });
 });
+
+test.describe("the 404", () => {
+  // Next's default 404 is light-themed, which on a dark-only site reads as a
+  // broken page rather than a missing one.
+  test("is dark and offers a way back", async ({ page }) => {
+    const res = await page.goto("/no-such-page");
+    expect(res?.status()).toBe(404);
+
+    const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    expect(bg).toBe("rgb(10, 14, 12)"); // the site's ground, not white
+
+    await expect(page.getByRole("link", { name: /take me back/i })).toBeVisible();
+  });
+});
