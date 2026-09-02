@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { armOnGesture, boot, unlockAudio } from "@/lib/sound";
 import { profile } from "@/data/resume";
@@ -37,17 +37,29 @@ const MONO = 'ui-monospace, "SF Mono", Menlo, Consolas, monospace';
 // "running" — the sequence itself
 type Phase = "hidden" | "gate" | "running";
 
+// Whether this visit should be gated at all depends on two browser facts —
+// the motion preference and whether the loader already ran this session.
+// Both are external state, so they are read through a store snapshot rather
+// than a setState inside an effect: the server always answers "no gate", the
+// client answers for real, and there is no extra render or hydration mismatch.
+const neverChanges = () => () => {};
+function shouldGate(): boolean {
+  try {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
+    return !sessionStorage.getItem("beta-loader-seen");
+  } catch {
+    return false; // storage blocked — treat it as already seen
+  }
+}
+
 export default function BetaLoader() {
-  const [phase, setPhase] = useState<Phase>("hidden"); // until mount decides
+  const gated = useSyncExternalStore(neverChanges, shouldGate, () => false);
+  const [advanced, setAdvanced] = useState<"entered" | "done" | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const doneRef = useRef(false);
-  const gone = phase !== "running";
 
-  useEffect(() => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const seen = sessionStorage.getItem("beta-loader-seen");
-    if (!reduce && !seen) setPhase("gate");
-  }, []);
+  const phase: Phase = !gated || advanced === "done" ? "hidden" : advanced === "entered" ? "running" : "gate";
+  const gone = phase !== "running";
 
   // The gate exists for exactly one reason: a browser will not let a page
   // play audio until the visitor has interacted with it, and a loader runs
@@ -55,7 +67,7 @@ export default function BetaLoader() {
   // context is running before the first frame — so the score is in sync.
   const enter = async () => {
     await unlockAudio();
-    setPhase("running");
+    setAdvanced("entered");
   };
 
   useEffect(() => {
@@ -83,7 +95,7 @@ export default function BetaLoader() {
       doneRef.current = true;
       boot.settle();
       sessionStorage.setItem("beta-loader-seen", "1");
-      setPhase("hidden");
+      setAdvanced("done");
     };
     const onKey = () => dismiss();
     window.addEventListener("keydown", onKey);
@@ -242,7 +254,6 @@ export default function BetaLoader() {
       window.removeEventListener("keydown", onKey);
       boot.settle(); // never leave the room bed running
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gone]);
 
   const skip = () => {
@@ -250,7 +261,7 @@ export default function BetaLoader() {
     doneRef.current = true;
     boot.settle();
     sessionStorage.setItem("beta-loader-seen", "1");
-    setPhase("hidden");
+    setAdvanced("done");
   };
 
   return (

@@ -12,6 +12,14 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Capacitor copies the built web assets into the native projects on
+    // sync, so linting these means linting minified output — every warning
+    // is about generated code nobody wrote.
+    "android/**",
+    "ios/**",
+    // Playwright output
+    "test-results/**",
+    "playwright-report/**",
   ]),
 ]);
 
