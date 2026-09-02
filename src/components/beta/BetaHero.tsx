@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowDown } from "lucide-react";
 import { profile } from "@/data/resume";
+import VersionBadge from "@/components/beta/VersionBadge";
 
 const NAME_WORDS = profile.name.split(" ");
 
@@ -93,6 +94,16 @@ export default function BetaHero() {
       >
         <ArrowDown size={14} className="animate-bounce" />
         scroll
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 1.4 }}
+        className="absolute bottom-8 right-6 font-mono text-[10px] uppercase tracking-[0.25em] text-[#3a4a41] sm:bottom-10 sm:right-10"
+        style={{ bottom: "calc(env(safe-area-inset-bottom) + 2rem)" }}
+      >
+        <VersionBadge />
       </motion.div>
     </section>
   );

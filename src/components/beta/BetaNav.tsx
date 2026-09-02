@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { profile } from "@/data/resume";
 import { scrollToId } from "@/components/beta/SmoothScroll";
+import VersionBadge from "@/components/beta/VersionBadge";
 
 const LINKS = [
   { id: "experience", label: "Experience", n: "01" },
@@ -159,8 +160,8 @@ export default function BetaNav() {
               >
                 LinkedIn
               </a>
-              {/* same version the Android and iOS builds carry */}
-              <span className="text-[#3a4a41]">v{process.env.NEXT_PUBLIC_APP_VERSION}</span>
+              {/* which build you are looking at, web or app */}
+              <VersionBadge className="text-[#3a4a41]" />
             </motion.div>
           </motion.div>
         )}
