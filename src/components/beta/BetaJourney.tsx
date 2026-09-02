@@ -8,17 +8,17 @@ import {
   useScroll,
   useTransform,
 } from "framer-motion";
-import { GitBranch, GraduationCap, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, GitBranch, GraduationCap, Sparkles } from "lucide-react";
 import { education, jobs } from "@/data/resume";
+import { allProjects } from "@/lib/projects";
 
 // One continuous journey section: the job history first, then education,
 // then the projects that came out of it all — Work and Experience merged
 // per the one-page story. All facts straight from resume.ts; the project
 // cards keep the floating-glass treatment from the old Work section.
 
-const allProjects = jobs.flatMap((job) =>
-  job.projects.map((proj) => ({ ...proj, company: job.company, tech: job.tech }))
-);
+
 
 const TINTS = [
   { rgb: "57,255,142", hex: "#39ff8e" },
@@ -134,6 +134,15 @@ function ProjectCard({ proj, i }: { proj: (typeof allProjects)[number]; i: numbe
                     {proj.highlight}
                   </div>
                 )}
+
+                <Link
+                  href={`/work/${proj.slug}/`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="mt-5 inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.2em] text-[#8b978f] transition-colors hover:text-[#e8efe9]"
+                >
+                  Read the detail
+                  <ArrowUpRight size={13} />
+                </Link>
               </motion.div>
             )}
           </AnimatePresence>

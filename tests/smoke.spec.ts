@@ -155,3 +155,63 @@ test.describe("the 404", () => {
     await expect(page.getByRole("link", { name: /take me back/i })).toBeVisible();
   });
 });
+
+test.describe("project deep links", () => {
+  // The site was one URL, so nothing could be shared and search engines had a
+  // single document to index. Each project now has its own page.
+  const SLUGS = [
+    "claims-intelligence",
+    "uspayroll",
+    "irispayroll",
+    "cre",
+    "alfr-annual-landfill-review",
+    "power-bi-reporting",
+  ];
+
+  for (const slug of SLUGS) {
+    test(`/work/${slug} is a real page with its own title`, async ({ page }) => {
+      const errors: string[] = [];
+      page.on("pageerror", (e) => errors.push(e.message));
+
+      const res = await page.goto(`/work/${slug}/`);
+      expect(res?.status()).toBe(200);
+
+      // a deep link must not sit the visitor through the entry sequence
+      await expect(page.getByRole("button", { name: "Enter" })).toHaveCount(0);
+
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+      await expect(page).toHaveTitle(/— Shrenik YD$/);
+      await expect(page.getByRole("link", { name: /all work/i })).toBeVisible();
+      expect(errors).toEqual([]);
+    });
+  }
+
+  test("titles are distinct, which is the whole point", async ({ page }) => {
+    const titles = new Set<string>();
+    for (const slug of SLUGS) {
+      await page.goto(`/work/${slug}/`);
+      titles.add(await page.title());
+    }
+    expect(titles.size).toBe(SLUGS.length);
+  });
+
+  test("a work card links through to its page", async ({ page }) => {
+    await page.addInitScript(() => sessionStorage.setItem("beta-loader-seen", "1"));
+    await page.goto("/");
+
+    // scrollIntoViewIfNeeded does nothing inside the pinned container, so
+    // reach the work list the way a visitor does
+    await page.getByRole("button", { name: "Work", exact: true }).first().click();
+    await scrolledPast(page, 500);
+
+    // the card opens on hover and toggles on click, so a click after the
+    // pointer arrives would close it again — hover is the desktop interaction
+    const card = page.locator("#work [role=button]").first();
+    await card.hover();
+
+    const link = page.getByRole("link", { name: /read the detail/i }).first();
+    await expect(link).toBeVisible();
+    await link.click();
+    await expect(page).toHaveURL(/\/work\/[a-z0-9-]+\/$/);
+  });
+});
