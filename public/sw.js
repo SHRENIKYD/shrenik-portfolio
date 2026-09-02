@@ -15,7 +15,7 @@
  * edit it here. Releasing a new version evicts every older cache on activate.
  */
 
-const VERSION = "v1.0.5";
+const VERSION = "v1.0.4";
 const CACHE = `shrenik-portfolio-${VERSION}`;
 
 // "/" locally, "/shrenik-portfolio/" on GitHub Pages — derived rather than
