@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Social card source — 1200 × 630</title>
+<!--
+  Source for public/og.png, the image every platform shows when the site is
+  shared. Regenerate after editing:
+
+      npx playwright screenshot --viewport-size=1200,630 \
+        assets/og-card.html public/og.png
+
+  Any renderer works as long as IBM Plex Mono is available — the design is
+  the contact screen's neon sign, so the type carries all of it.
+-->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap">
+<style>
+  html, body { margin: 0; padding: 0; background: #05080a; }
+  .card {
+    position: relative; width: 1200px; height: 630px; overflow: hidden;
+    background: #05080a; color: #e8efe9;
+    font-family: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  canvas { position: absolute; inset: 0; }
+  .rows, .sub { position: relative; z-index: 1; }
+
+  /* the sign, mid-ignition: two tubes still dead, exactly as the contact
+     takeover renders it before every character has caught */
+  .rows {
+    font-weight: 700; font-size: 96px; line-height: 1; letter-spacing: 0.1em;
+    text-align: center; color: #dce8ec;
+    text-shadow: 0 0 18px rgba(57,255,142,0.5), 0 0 46px rgba(57,255,142,0.2);
+  }
+  .rows .off { opacity: 0.1; text-shadow: none; }
+  .sub {
+    margin-top: 30px; font-size: 24px; letter-spacing: 0.24em; color: #7fa3b0;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <canvas id="fx" width="1200" height="630"></canvas>
+    <div class="rows">BEN<br>GA<span class="off">L</span><br><span class="off">U</span>RU</div>
+    <div class="sub">SHRENIK YD · FULL-STACK .NET</div>
+  </div>
+
+<script>
+  // the site's marine snow, frozen — seeded so every regeneration is identical
+  var g = document.getElementById("fx").getContext("2d");
+  var grad = g.createRadialGradient(300, -80, 40, 300, -80, 1000);
+  grad.addColorStop(0, "rgba(90,150,180,0.13)");
+  grad.addColorStop(1, "rgba(5,8,10,0)");
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 1200, 630);
+
+  var seed = 9;
+  function rnd() { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; }
+  var GLYPHS = ["/", "0", "1", "<", ">", "{", "}", ";", "=", "+"];
+  g.font = '17px ui-monospace, monospace';
+  for (var i = 0; i < 90; i++) {
+    g.fillStyle = "rgba(127,163,176," + (0.05 + rnd() * 0.16).toFixed(3) + ")";
+    g.fillText(GLYPHS[(rnd() * GLYPHS.length) | 0], rnd() * 1200, rnd() * 630);
+  }
+  for (var j = 0; j < 22; j++) {
+    g.beginPath();
+    g.arc(rnd() * 1200, rnd() * 630, 1 + rnd() * 3, 0, Math.PI * 2);
+    g.fillStyle = "rgba(57,255,142," + (0.05 + rnd() * 0.12).toFixed(3) + ")";
+    g.fill();
+  }
+</script>
+</body>
+</html>

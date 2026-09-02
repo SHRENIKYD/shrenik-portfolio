@@ -3,6 +3,7 @@ import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import InteractiveBackground from "@/components/InteractiveBackground";
 import InstallApp from "@/components/InstallApp";
 import { withBasePath } from "@/lib/basePath";
+import { SITE_DESCRIPTION, SITE_ORIGIN, SITE_TITLE } from "@/lib/site";
 import "./globals.css";
 
 const plexMono = IBM_Plex_Mono({
@@ -18,10 +19,37 @@ const plexSans = IBM_Plex_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Shrenik YD — Senior Software Engineer",
-  description:
-    "Shrenik YD — Full-stack .NET / Angular / Knockout.js engineer. Interactive terminal-styled portfolio built from a resume.",
+  // Everything relative below is resolved against this into an absolute URL,
+  // which is what social scrapers require.
+  metadataBase: new URL(SITE_ORIGIN),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
   applicationName: "Shrenik.YD",
+
+  // The link preview: the contact screen's neon sign, mid-ignition.
+  // Source in assets/og-card.html, rendered to public/og.png.
+  openGraph: {
+    type: "website",
+    siteName: "Shrenik YD",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: withBasePath("/"),
+    locale: "en_IN",
+    images: [
+      {
+        url: withBasePath("/og.png"),
+        width: 1200,
+        height: 630,
+        alt: "BENGALURU in neon, half-lit — Shrenik YD, full-stack .NET engineer",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [withBasePath("/og.png")],
+  },
   // iOS ignores the web app manifest: standalone launch, the status bar
   // treatment and the home screen icon all come from these instead.
   appleWebApp: {
