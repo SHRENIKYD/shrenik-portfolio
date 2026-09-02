@@ -2,13 +2,15 @@ package in.shrenikyd.portfolio;
 
 import android.os.Bundle;
 import android.view.View;
+import android.webkit.WebView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.getcapacitor.BridgeActivity;
 
 /**
- * Keeps the web content clear of the system bars.
+ * Native adjustments the web layer cannot make for itself: keeping content
+ * clear of the system bars, and removing the WebView's own scrollbar.
  *
  * Android 15 and later force every app edge to edge and ignore attempts to
  * opt out — the StatusBar plugin's `overlaysWebView: false` is documented as
@@ -26,6 +28,17 @@ public class MainActivity extends BridgeActivity {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    // The WebView draws its own native scrollbar, which the site's CSS
+    // (scrollbar-width / ::-webkit-scrollbar) cannot touch — that rule only
+    // hides the CSS scrollbar. The eased scrolling already has the progress
+    // bar along the top edge as its position indicator, so the native one is
+    // just a stripe over the content.
+    WebView webView = getBridge().getWebView();
+    if (webView != null) {
+      webView.setVerticalScrollBarEnabled(false);
+      webView.setHorizontalScrollBarEnabled(false);
+    }
 
     final View content = findViewById(android.R.id.content);
     ViewCompat.setOnApplyWindowInsetsListener(
